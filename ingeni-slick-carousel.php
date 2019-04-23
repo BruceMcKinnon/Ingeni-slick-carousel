@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2017.01
+Version: 2019.01
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -9,7 +9,7 @@ Description: Slick-based carousel for Wordpress
 */
 
 /*
-Copyright (c) 2017 Ingeni Web Solutions
+Copyright (c) 2019 Ingeni Web Solutions
 Released under the GPL license
 http://www.gnu.org/licenses/gpl.txt
 
@@ -28,32 +28,36 @@ Disclaimer:
 Requires : Wordpress 3.x or newer ,PHP 5 +
 
 v2017.01 - Initial version, based on Ingeni slick Carousel v2016.01
-
+v2019.01 - Integrated Github plugin updating.
+					- Refreshed with Slick Slider 1.9.0 - https://github.com/kenwheeler/slick/
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
-function do_ingeni_slick( $atts ) {
+function do_ingeni_slick( $args ) {
 
-	extract( shortcode_atts( array(
+	$params = shortcode_atts( array(
 		'source_path' => '/photos-bucket/',
 		'wrapper_class' => 'ingeni-slick-wrap',
 		'sync_thumbs' => 1,
 		'max_thumbs' => 0,
-		'show_nav' => 1,
+		'show_thumbs' => 1,
+		'show_arrows' => 1,
 		'shuffle' => 1,
 		'file_list' => "",
 		'file_path' => "",
-	), $atts ) );
+		'autoplay' => 1,
+		'speed' => 2000,
+	), $args );
 
 
-	if ( strlen($file_list) > 0 ) {
-		$photos = explode(",",$file_list);
-		$home_path = $file_path;
+	if ( strlen($params['file_list']) > 0 ) {
+		$photos = explode(",",$params['file_list']);
+		$home_path = $params['file_path'];
 	} else {
-		$photos = scandir(getcwd() . $source_path);
-		$home_path = get_bloginfo('url') . $source_path;
+		$photos = scandir(getcwd() . $params['source_path']);
+		$home_path = get_bloginfo('url') . $params['source_path'];
 	}
-	
+
 	$sync1 = "";
 	$sync2 = "";
 
@@ -61,14 +65,14 @@ function do_ingeni_slick( $atts ) {
 	$slider_nav_class = "slider-nav";
 	
 	$idx = 0;
-	if ($shuffle > 0) {
+	if ($params['shuffle'] > 0) {
 		shuffle($photos);
 	}
 	foreach ($photos as $photo) {
 		if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
 			$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 			++$idx;
-			if ( ($idx > $max_thumbs) && ($max_thumbs > 0) ) {
+			if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
 				break;
 			}
 		}
@@ -77,41 +81,52 @@ function do_ingeni_slick( $atts ) {
 	$sync2 = $sync1;
 	
 	$sync1 = '<div class="'.$slider_for_class.'">' . $sync1 . '</div>';
-	if ($sync_thumbs  > 0) {
+	if ($params['show_thumbs']  > 0) {
 		$sync2 = '<div class="'.$slider_nav_class.'">' . $sync2 . '</div>';
 	} else {
 		$sync2 = '';
 	}
+
 	
-	/*
-	if ($show_nav > 0) {
-		$sync1 .= '<div id="slick_show_nav"></div>';
+	if ($params['autoplay'] == 1) {
+		$params['autoplay'] = 'true';
+	} else {
+		$params['autoplay'] = 'false';
 	}
-	*/
-	
+
+	if ($params['show_arrows'] == 1) {
+		$params['show_arrows'] = 'true';
+	} else {
+		$params['show_arrows'] = 'false';
+	}
 
 	$js = "<script>jQuery(document).ready(
 			function($) {
-				$('.slider-for').slick({
+				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: 1,
 					slidesToScroll: 1,
-					arrows: true,
+					arrows: ". $params['show_arrows'] . ",
 					fade: true,
-					asNavFor: '.".$slider_nav_class."',
-					autoplay: true
-				});
-				$('.slider-nav').slick({
+					autoplay: ". $params['autoplay'] . ",
+					autoplaySpeed: " . $params['speed'] . ",";
+	if ( ($params['show_thumbs'] != 0) && ($params['sync_thumbs'] != 0) ) {
+		$js .= "asNavFor: '.".$slider_nav_class."',";
+	}
+	$js .= "});";
+
+	if ($params['show_thumbs'] != 0) {
+		$js .= "jQuery('.".$slider_nav_class."').slick({
 					slidesToShow: 3,
 					slidesToScroll: 1,
-					asNavFor: '.".$slider_for_class."',
 					arrows: false,
 					dots: true,
+					asNavFor: '.".$slider_for_class."',
 					centerMode: true,
 					focusOnSelect: true
-				});
-			});</script>";
-
-	return '<div class="'.$wrapper_class.'">'.$sync1.$sync2.'</div>'.$js;
+				});";
+		}
+	$js .= "});</script>";
+	return '<div class="'.$params['wrapper_class'].'">'.$sync1.$sync2.'</div>'.$js;
 }
 
 
@@ -124,6 +139,15 @@ function ingeni_load_slick() {
 
 	wp_register_script( 'slick_js', $dir .'slick.min.js', false, '1.8', true );
 	wp_enqueue_script( 'slick_js' );
+
+
+	// Init auto-update from GitHub repo
+	require 'plugin-update-checker/plugin-update-checker.php';
+	$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+		'https://github.com/BruceMcKinnon/Ingeni-slick-carousel',
+		__FILE__,
+		'Ingeni-slick-carousel'
+	);
 }
 add_action( 'wp_enqueue_scripts', 'ingeni_load_slick' );
 
