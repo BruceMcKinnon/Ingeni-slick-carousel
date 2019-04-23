@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.01
+Stable tag: 2019.02
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -39,14 +39,29 @@ Use the shortcode [ingeni-slick]
 
 The following parameters may be included:
 
+
+
 source_path: Directory relative to the home page that contains the images to b displayed. Defaults to '/photos-bucket/',
+
 wrapper_class: Wrapping class name. Defaults to 'ingeni-slick-wrap'.
+
 show_thumbs: Display a horzontal list of thumbnails below the main image. Defaults to 1 (show thumbnails). Used inconjunction with sync_thumbs.
+
 sync_thumbs: Keep the main image and thumbnail list in sync. Defaults to 1 (equals sync the thumbnails). Used inconjunction with show_thumbs.
+
 max_thumbs: Max. number of thumbnails to display. Defaults to 0 (show all thumbnails).
+
 show_arrows: Show navigation arrows. Defaults to 1 (show arrows).
+
 shuffle: Randomly shuffle the order of the images. Defaults to 1 (shuffle images).
+
 speed: msecs to display image before moving to the next. Defaults to 2000 (2 secs).
+
+bg_images: Display images as background images. Default = 0 (foreground images)
+
+category: Display the featured images from posts of a specific category. Provide the category name as the parameter value.
+
+
 
 
 == Changelog ==
@@ -54,3 +69,7 @@ speed: msecs to display image before moving to the next. Defaults to 2000 (2 sec
 v2017.01 - Initial version, based on Ingeni slick Carousel v2016.01
 
 v2019.01 - Added Github-based updating.
+					- Refreshed with Slick Slider 1.9.0 - https://github.com/kenwheeler/slick/
+v2019.02	- Improved calling getcwd()
+					- Implemented displaying images as background images
+					- Implemented displaying the featured images from posts of a specific category

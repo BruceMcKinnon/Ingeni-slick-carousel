@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.01
+Version: 2019.02
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -30,6 +30,9 @@ Requires : Wordpress 3.x or newer ,PHP 5 +
 v2017.01 - Initial version, based on Ingeni slick Carousel v2016.01
 v2019.01 - Integrated Github plugin updating.
 					- Refreshed with Slick Slider 1.9.0 - https://github.com/kenwheeler/slick/
+v2019.02	- Improved calling getcwd()
+					- Implemented displaying images as background images
+					- Implemented displaying the featured images from posts of a specific category
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -46,15 +49,52 @@ function do_ingeni_slick( $args ) {
 		'file_list' => "",
 		'file_path' => "",
 		'autoplay' => 1,
+		'start_path' => "",
+		'bg_images' => 0,
+		'category' => '',
 		'speed' => 2000,
 	), $args );
 
 
-	if ( strlen($params['file_list']) > 0 ) {
+	if ( strlen($params['category']) > 0 ) {
+		$photos = array();
+
+		$post_attribs = array (
+			'posts_per_page' => $params['max_thumbs'],
+			'offset' => 0,
+			'category_name' => $params['category']
+		);
+		$myquery = new WP_Query( $post_attribs );
+	
+		if ( $myquery->have_posts() ) {
+			while ( $myquery->have_posts() ) {
+				$myquery->the_post();
+				$thumb_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+
+				array_push( $photos, $thumb_url );
+			}
+		}
+
+	} elseif ( strlen($params['file_list']) > 0 ) {
 		$photos = explode(",",$params['file_list']);
 		$home_path = $params['file_path'];
+
 	} else {
-		$photos = scandir(getcwd() . $params['source_path']);
+		try {
+			if ($params['start_path'] != '') {
+				chdir($params['start_path']);
+			}
+//fb_log('curr path:'.getcwd() .'|'.$source_path);
+			$root_dir = getcwd();
+			if (stripos($root_dir, '/wp-admin') !== FALSE ) {
+				$root_dir = str_ireplace('/wp-admin','',$root_dir);
+			}
+			$photos = scandir( $root_dir . $params['source_path']);
+		} catch (Exception $ex) {
+			if ( function_exists("fb_log") ) {
+				fb_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
+			}
+		}
 		$home_path = get_bloginfo('url') . $params['source_path'];
 	}
 
@@ -70,7 +110,11 @@ function do_ingeni_slick( $args ) {
 	}
 	foreach ($photos as $photo) {
 		if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
-			$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
+			if ($params['bg_images'] > 0) {
+				$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false"></div></div>';				
+			} else {
+				$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
+			}
 			++$idx;
 			if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
 				break;
@@ -79,6 +123,17 @@ function do_ingeni_slick( $args ) {
 	}
 
 	$sync2 = $sync1;
+
+
+
+	$params['fade'] = "true";
+	if ( $params['slides_to_show'] < 1 ) {
+		$params['fade'] = "false";
+	}
+	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":1,"arrows":'.$show_arrows.',"speed":'.$params['speed'].',"fade":'.$fade.',"autoplay":true}\'';
+	$data_attribs = '';
+
+
 	
 	$sync1 = '<div class="'.$slider_for_class.'">' . $sync1 . '</div>';
 	if ($params['show_thumbs']  > 0) {
