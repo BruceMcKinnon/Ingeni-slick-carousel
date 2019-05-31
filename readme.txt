@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.02
+Stable tag: 2019.03
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -61,6 +61,8 @@ bg_images: Display images as background images. Default = 0 (foreground images)
 
 category: Display the featured images from posts of a specific category. Provide the category name as the parameter value.
 
+file_ids: Comma separated list of media library file IDs. Easy way to get this list is to create a post gallery of the required images. The standard [gallery] shortcode contains a list of file IDs.
+
 
 
 
@@ -73,3 +75,5 @@ v2019.01 - Added Github-based updating.
 v2019.02	- Improved calling getcwd()
 					- Implemented displaying images as background images
 					- Implemented displaying the featured images from posts of a specific category
+
+v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs, as you get when you create a gallery within a post.

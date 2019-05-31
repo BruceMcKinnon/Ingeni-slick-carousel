@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.02
+Version: 2019.03
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -33,6 +33,8 @@ v2019.01 - Integrated Github plugin updating.
 v2019.02	- Improved calling getcwd()
 					- Implemented displaying images as background images
 					- Implemented displaying the featured images from posts of a specific category
+v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs,
+						as you get when you create a gallery within a post.
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -47,6 +49,7 @@ function do_ingeni_slick( $args ) {
 		'show_arrows' => 1,
 		'shuffle' => 1,
 		'file_list' => "",
+		'file_ids' => "",
 		'file_path' => "",
 		'autoplay' => 1,
 		'start_path' => "",
@@ -76,9 +79,40 @@ function do_ingeni_slick( $args ) {
 		}
 
 	} elseif ( strlen($params['file_list']) > 0 ) {
+		//
+		// A list of file names were passed in
+		//
 		$photos = explode(",",$params['file_list']);
 		$home_path = $params['file_path'];
 
+	} elseif ( strlen($params['file_ids']) > 0 ) {
+		//
+		// If a list of media ID, get the source URLs and create a file_list
+		//
+		$photos = array();
+		$home_path = "";
+		//fb_log('file ids='.$params['file_ids']);
+
+		$media_ids = array();
+		$media_ids = explode(",",$params['file_ids']);
+
+		$source_urls = "";
+		$idx = 0;
+
+
+		foreach($media_ids as $media_id) {
+			$source_urls .= wp_get_attachment_url( $media_id ) . ',';
+		}
+		$source_urls = substr($source_urls,0,strlen($source_urls)-1);
+
+		$params['file_list'] = $source_urls;
+		$params['file_path'] = "";
+
+		// Now prepare the list of the slider
+		$photos = explode(",",$params['file_list']);
+		$home_path = $params['file_path'];
+
+	
 	} else {
 		try {
 			if ($params['start_path'] != '') {
