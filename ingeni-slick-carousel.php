@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.03
+Version: 2019.04
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -35,6 +35,8 @@ v2019.02	- Improved calling getcwd()
 					- Implemented displaying the featured images from posts of a specific category
 v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs,
 						as you get when you create a gallery within a post.
+v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
+
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -56,104 +58,146 @@ function do_ingeni_slick( $args ) {
 		'bg_images' => 0,
 		'category' => '',
 		'speed' => 2000,
+		'post_ids' => '',
+		'post_type' => 'content_block',
+		'orderby' => 'title',
 	), $args );
 
 
-	if ( strlen($params['category']) > 0 ) {
-		$photos = array();
+	if ( strlen($params['post_ids']) > 0 ) {
+		//
+		// Content based slides
+		//
+		$id_array = explode(",",$params['post_ids']);
 
-		$post_attribs = array (
-			'posts_per_page' => $params['max_thumbs'],
-			'offset' => 0,
-			'category_name' => $params['category']
+		$args = array(
+			'post__in' => $id_array,
+			'post_type' => $params['post_type'],
+			'class' => 'content_block_featured',
+			'orderby' => $params['orderby'],
 		);
-		$myquery = new WP_Query( $post_attribs );
-	
-		if ( $myquery->have_posts() ) {
-			while ( $myquery->have_posts() ) {
-				$myquery->the_post();
-				$thumb_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
 
-				array_push( $photos, $thumb_url );
-			}
-		}
-
-	} elseif ( strlen($params['file_list']) > 0 ) {
-		//
-		// A list of file names were passed in
-		//
-		$photos = explode(",",$params['file_list']);
-		$home_path = $params['file_path'];
-
-	} elseif ( strlen($params['file_ids']) > 0 ) {
-		//
-		// If a list of media ID, get the source URLs and create a file_list
-		//
-		$photos = array();
-		$home_path = "";
-		//fb_log('file ids='.$params['file_ids']);
-
-		$media_ids = array();
-		$media_ids = explode(",",$params['file_ids']);
-
-		$source_urls = "";
 		$idx = 0;
+		$content_post = get_posts( $args );
 
+		$inline_style = "";
 
-		foreach($media_ids as $media_id) {
-			$source_urls .= wp_get_attachment_url( $media_id ) . ',';
-		}
-		$source_urls = substr($source_urls,0,strlen($source_urls)-1);
+		$sync1 = "";
+		$sync2 = "";
 
-		$params['file_list'] = $source_urls;
-		$params['file_path'] = "";
+		$slider_for_class = "slider-for";
+		$slider_nav_class = "slider-nav";
 
-		// Now prepare the list of the slider
-		$photos = explode(",",$params['file_list']);
-		$home_path = $params['file_path'];
+		foreach( $content_post as $post ) {
+			$sync1 .= '<div class="item">' . apply_filters('the_content', $post->post_content) . '</div>';
 
-	
-	} else {
-		try {
-			if ($params['start_path'] != '') {
-				chdir($params['start_path']);
-			}
-//fb_log('curr path:'.getcwd() .'|'.$source_path);
-			$root_dir = getcwd();
-			if (stripos($root_dir, '/wp-admin') !== FALSE ) {
-				$root_dir = str_ireplace('/wp-admin','',$root_dir);
-			}
-			$photos = scandir( $root_dir . $params['source_path']);
-		} catch (Exception $ex) {
-			if ( function_exists("fb_log") ) {
-				fb_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
-			}
-		}
-		$home_path = get_bloginfo('url') . $params['source_path'];
-	}
-
-	$sync1 = "";
-	$sync2 = "";
-
-	$slider_for_class = "slider-for";
-	$slider_nav_class = "slider-nav";
-	
-	$idx = 0;
-	if ($params['shuffle'] > 0) {
-		shuffle($photos);
-	}
-	foreach ($photos as $photo) {
-		if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
-			if ($params['bg_images'] > 0) {
-				$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false"></div></div>';				
-			} else {
-				$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
-			}
 			++$idx;
 			if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
 				break;
 			}
 		}
+
+	}	else {
+		//
+		// Image-based slides
+		//
+		if ( strlen($params['category']) > 0 ) {
+			$photos = array();
+
+			$post_attribs = array (
+				'posts_per_page' => $params['max_thumbs'],
+				'offset' => 0,
+				'category_name' => $params['category']
+			);
+			$myquery = new WP_Query( $post_attribs );
+		
+			if ( $myquery->have_posts() ) {
+				while ( $myquery->have_posts() ) {
+					$myquery->the_post();
+					$thumb_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+
+					array_push( $photos, $thumb_url );
+				}
+			}
+
+		} elseif ( strlen($params['file_list']) > 0 ) {
+			//
+			// A list of file names were passed in
+			//
+			$photos = explode(",",$params['file_list']);
+			$home_path = $params['file_path'];
+
+		} elseif ( strlen($params['file_ids']) > 0 ) {
+			//
+			// If a list of media ID, get the source URLs and create a file_list
+			//
+			$photos = array();
+			$home_path = "";
+			//fb_log('file ids='.$params['file_ids']);
+
+			$media_ids = array();
+			$media_ids = explode(",",$params['file_ids']);
+
+			$source_urls = "";
+			$idx = 0;
+
+
+			foreach($media_ids as $media_id) {
+				$source_urls .= wp_get_attachment_url( $media_id ) . ',';
+			}
+			$source_urls = substr($source_urls,0,strlen($source_urls)-1);
+
+			$params['file_list'] = $source_urls;
+			$params['file_path'] = "";
+
+			// Now prepare the list of the slider
+			$photos = explode(",",$params['file_list']);
+			$home_path = $params['file_path'];
+
+		
+		} else {
+			try {
+				if ($params['start_path'] != '') {
+					chdir($params['start_path']);
+				}
+	//fb_log('curr path:'.getcwd() .'|'.$source_path);
+				$root_dir = getcwd();
+				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
+					$root_dir = str_ireplace('/wp-admin','',$root_dir);
+				}
+				$photos = scandir( $root_dir . $params['source_path']);
+			} catch (Exception $ex) {
+				if ( function_exists("fb_log") ) {
+					fb_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
+				}
+			}
+			$home_path = get_bloginfo('url') . $params['source_path'];
+		}
+
+		$sync1 = "";
+		$sync2 = "";
+
+		$slider_for_class = "slider-for";
+		$slider_nav_class = "slider-nav";
+		
+		$idx = 0;
+		if ($params['shuffle'] > 0) {
+			shuffle($photos);
+		}
+		foreach ($photos as $photo) {
+			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
+				if ($params['bg_images'] > 0) {
+					$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false"></div></div>';				
+				} else {
+					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
+				}
+				++$idx;
+				if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
+					break;
+				}
+			}
+		}
+
 	}
 
 	$sync2 = $sync1;

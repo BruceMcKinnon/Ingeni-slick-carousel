@@ -4,9 +4,11 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.03
+Stable tag: 2019.04
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
+
+Also allows content to be sources from WP posts (e.g., content blocks)
 
 
 
@@ -63,6 +65,12 @@ category: Display the featured images from posts of a specific category. Provide
 
 file_ids: Comma separated list of media library file IDs. Easy way to get this list is to create a post gallery of the required images. The standard [gallery] shortcode contains a list of file IDs.
 
+post_ids: Comma separated list of post IDs.
+
+post_type: Used in-conjunction with the post_ids parameter. E.g., ‘post’, ‘page’. Defaults to ’content_block’.
+
+orderby: Order in which the slides appear. Used in-conjunction with the post_ids parameter. E.g., ‘post__in’. Defaults to ‘title’.
+
 
 
 
@@ -77,3 +85,6 @@ v2019.02	- Improved calling getcwd()
 					- Implemented displaying the featured images from posts of a specific category
 
 v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs, as you get when you create a gallery within a post.
+
+v2019.04 - Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
+
