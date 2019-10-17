@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.05
+Version: 2019.06
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -37,6 +37,7 @@ v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if medi
 						as you get when you create a gallery within a post.
 v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
+v2019.06  - Added support for 'adaptive_height', 'thumbnail_size', 'show_title', 'translucent_layer_class' options.
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -64,6 +65,10 @@ function do_ingeni_slick( $args ) {
 		'center_mode' => 0,
 		'variable_width' => 0,
 		'fade' => 1,
+		'adaptive_height' => 0,
+		'thumbnail_size' => 'full',
+		'show_title' => 0,
+		'translucent_layer_class' => '',
 	), $args );
 
 
@@ -106,20 +111,26 @@ function do_ingeni_slick( $args ) {
 		//
 		if ( strlen($params['category']) > 0 ) {
 			$photos = array();
+			$titles = array();
 
 			$post_attribs = array (
 				'posts_per_page' => $params['max_thumbs'],
 				'offset' => 0,
-				'category_name' => $params['category']
+				'category_name' => $params['category'],
+				'orderby' => $params['orderby'],
 			);
+
+			//fb_log(print_r($post_attribs,true));
 			$myquery = new WP_Query( $post_attribs );
 		
 			if ( $myquery->have_posts() ) {
 				while ( $myquery->have_posts() ) {
 					$myquery->the_post();
-					$thumb_url = get_the_post_thumbnail_url( get_the_ID(), 'large' );
+					$thumb_url = get_the_post_thumbnail_url( get_the_ID(), $params['thumbnail_size'] );
 
 					array_push( $photos, $thumb_url );
+
+					array_push( $titles, get_the_title() );
 				}
 			}
 
@@ -182,15 +193,41 @@ function do_ingeni_slick( $args ) {
 
 		$slider_for_class = "slider-for";
 		$slider_nav_class = "slider-nav";
+
+		if ($params['bg_images'] == 1) {
+			$params['adaptiveHeight'] = 'false';
+		} else {
+			if ($params['adaptiveHeight'] == '0') {
+				$params['adaptiveHeight'] = 'false';
+			} else {
+				$params['adaptiveHeight'] = 'true';
+			}			
+		}
 		
 		$idx = 0;
-		if ($params['shuffle'] > 0) {
+		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
 			shuffle($photos);
 		}
 		foreach ($photos as $photo) {
 			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
 				if ($params['bg_images'] > 0) {
-					$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false"></div></div>';				
+					$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+
+					if ($params['translucent_layer_class'] !== '') {
+						$sync1 .= '<div class="' . $params['translucent_layer_class'] . '"></div>';
+					}
+					if ($params['show_title'] > 0) {
+
+						if ( count($titles) > $idx ) {
+							$slide_title = $titles[$idx];
+						} else {
+							$slide_title = '';
+						}
+
+						$sync1 .= '<div class="slide_title">' . $slide_title . '</div>';
+					}
+
+					$sync1 .= '</div></div>';				
 				} else {
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
@@ -266,7 +303,7 @@ function do_ingeni_slick( $args ) {
 				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: 1,
 					slidesToScroll: 1,
-					adaptiveHeight: true,
+					adaptiveHeight: " . $params['adaptive_height'] . ",
 					arrows: ". $params['show_arrows'] . ",
 					autoplay: ". $params['autoplay'] . ",
 					autoplaySpeed: " . $params['speed'] . ",

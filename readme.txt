@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.04
+Stable tag: 2019.06
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -47,9 +47,9 @@ source_path: Directory relative to the home page that contains the images to b d
 
 wrapper_class: Wrapping class name. Defaults to 'ingeni-slick-wrap'.
 
-show_thumbs: Display a horzontal list of thumbnails below the main image. Defaults to 1 (show thumbnails). Used inconjunction with sync_thumbs.
+show_thumbs: Display a horzontal list of thumbnails below the main image. Defaults to 1 (show thumbnails). Used in conjunction with sync_thumbs.
 
-sync_thumbs: Keep the main image and thumbnail list in sync. Defaults to 1 (equals sync the thumbnails). Used inconjunction with show_thumbs.
+sync_thumbs: Keep the main image and thumbnail list in sync. Defaults to 1 (equals sync the thumbnails). Used in conjunction with show_thumbs.
 
 max_thumbs: Max. number of thumbnails to display. Defaults to 0 (show all thumbnails).
 
@@ -77,6 +77,33 @@ variable_width: Cope with variable width images. Default to 0.
 
 fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode. 
 
+adaptive_height: Allow the slider to modify the height of the images. Great for variable width carousels. Cannot be used with background images. Defaults to 0.
+
+thumbnail_size: Select which size thumbnail to use. Uses the standard Wordpress sizes. Defaults to ‘full’.
+
+show_title: May only be used with featured images from posts. Displays the post title in a div that overlays the background image. Defaults to 0. Style the titl using CSS.
+
+translucent_layer_class: Specify the name of a class that will overlay the background image.
+
+
+
+
+== Examples ==
+
+Simple carousel, disp;ays 5 features images from ‘portfolio’ category posts and displays the post name overlaying the image:
+
+[ingeni-slick show_thumbs="0" max_thumbs="5" show_arrows="0" bg_images="1" category="portfolio" show_title=1 orderby=“rand”]
+
+
+Display a variable width, sliding carousel. File IDs may be obtained by creating a Wordpress gallery and then copying them into the file_id parameter:
+
+[ingeni-slick show_thumbs="0" bg_images="0" fade="0" center_mode="1" variable_width="1" file_ids="275,274,273,272,271,270,269,268,267,266,265"]
+
+
+
+
+
+
 
 
 == Changelog ==
@@ -95,3 +122,4 @@ v2019.04 - Added the 'post_ids', 'post_type' and 'orderby' options - supply a li
 
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 
+v2019.06  - Added support for 'adaptive_height', 'thumbnail_size', 'show_title', 'translucent_layer_class' options.
