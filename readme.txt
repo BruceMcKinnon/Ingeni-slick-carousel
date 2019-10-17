@@ -71,6 +71,11 @@ post_type: Used in-conjunction with the post_ids parameter. E.g., ‘post’, �
 
 orderby: Order in which the slides appear. Used in-conjunction with the post_ids parameter. E.g., ‘post__in’. Defaults to ‘title’.
 
+center_mode: When using variable width, center the image in the div. Defaults to 0.
+
+variable_width: Cope with variable width images. Default to 0. 
+
+fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode. 
 
 
 
@@ -87,4 +92,6 @@ v2019.02	- Improved calling getcwd()
 v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs, as you get when you create a gallery within a post.
 
 v2019.04 - Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
+
+v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 

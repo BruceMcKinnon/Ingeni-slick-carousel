@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.04
+Version: 2019.05
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -36,7 +36,7 @@ v2019.02	- Improved calling getcwd()
 v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if media IDs,
 						as you get when you create a gallery within a post.
 v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
-
+v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -61,6 +61,9 @@ function do_ingeni_slick( $args ) {
 		'post_ids' => '',
 		'post_type' => 'content_block',
 		'orderby' => 'title',
+		'center_mode' => 0,
+		'variable_width' => 0,
+		'fade' => 1,
 	), $args );
 
 
@@ -233,15 +236,43 @@ function do_ingeni_slick( $args ) {
 		$params['show_arrows'] = 'false';
 	}
 
+	if ($params['fade'] == 1) {
+		$params['fade'] = 'true';
+	} else {
+		$params['fade'] = 'false';
+	}
+
+	// Can't use fade and centerMode/variableWidth together.
+	if ( ($params['center_mode'] == 1) && ($params['variable_width'] == 1) ) {
+		$params['fade'] = 'false';
+	}
+
+	if ($params['center_mode'] == 1) {
+		$params['center_mode'] = 'true';
+	} else {
+		$params['center_mode'] = 'false';
+	}
+
+	if ($params['variable_width'] == 1) {
+		$params['variable_width'] = 'true';
+	} else {
+		$params['variable_width'] = 'false';
+	}
+
+
+
 	$js = "<script>jQuery(document).ready(
 			function($) {
 				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: 1,
 					slidesToScroll: 1,
+					adaptiveHeight: true,
 					arrows: ". $params['show_arrows'] . ",
-					fade: true,
 					autoplay: ". $params['autoplay'] . ",
-					autoplaySpeed: " . $params['speed'] . ",";
+					autoplaySpeed: " . $params['speed'] . ",
+					fade: " . $params['fade'] . ",
+					centerMode: " . $params['center_mode'] . ",
+					variableWidth: " . $params['variable_width'];
 	if ( ($params['show_thumbs'] != 0) && ($params['sync_thumbs'] != 0) ) {
 		$js .= "asNavFor: '.".$slider_nav_class."',";
 	}
