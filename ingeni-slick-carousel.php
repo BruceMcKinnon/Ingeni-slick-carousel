@@ -37,7 +37,7 @@ v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if medi
 						as you get when you create a gallery within a post.
 v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
-v2019.06  - Added support for 'adaptive_height', 'thumbnail_size', 'show_title', 'translucent_layer_class' options.
+v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -69,6 +69,7 @@ function do_ingeni_slick( $args ) {
 		'thumbnail_size' => 'full',
 		'show_title' => 0,
 		'translucent_layer_class' => '',
+		'link_post' => 0,
 	), $args );
 
 
@@ -112,15 +113,20 @@ function do_ingeni_slick( $args ) {
 		if ( strlen($params['category']) > 0 ) {
 			$photos = array();
 			$titles = array();
+			$links = array();
 
+			$order_by = 'date';
+			if ( $params['shuffle'] > 0) {
+				$order_by = 'rand';
+			}
 			$post_attribs = array (
 				'posts_per_page' => $params['max_thumbs'],
 				'offset' => 0,
 				'category_name' => $params['category'],
-				'orderby' => $params['orderby'],
+				'orderby' => $order_by,
 			);
 
-			//fb_log(print_r($post_attribs,true));
+			fb_log(print_r($post_attribs,true));
 			$myquery = new WP_Query( $post_attribs );
 		
 			if ( $myquery->have_posts() ) {
@@ -129,8 +135,8 @@ function do_ingeni_slick( $args ) {
 					$thumb_url = get_the_post_thumbnail_url( get_the_ID(), $params['thumbnail_size'] );
 
 					array_push( $photos, $thumb_url );
-
 					array_push( $titles, get_the_title() );
+					array_push( $links, get_the_permalink() );
 				}
 			}
 
@@ -211,6 +217,11 @@ function do_ingeni_slick( $args ) {
 		foreach ($photos as $photo) {
 			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
 				if ($params['bg_images'] > 0) {
+
+					if ($params['link_post'] > 0) {
+						$sync1 .= '<a href="'.$links[$idx].'">';
+					}
+
 					$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
 
 					if ($params['translucent_layer_class'] !== '') {
@@ -226,8 +237,12 @@ function do_ingeni_slick( $args ) {
 
 						$sync1 .= '<div class="slide_title">' . $slide_title . '</div>';
 					}
+					$sync1 .= '</div></div>';
 
-					$sync1 .= '</div></div>';				
+					if ($params['link_post'] > 0) {
+						$sync1 .= '</a>';
+					}
+	
 				} else {
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
