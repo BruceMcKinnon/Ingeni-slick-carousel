@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.06
+Version: 2019.07
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -38,6 +38,7 @@ v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if medi
 v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
+v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
 */
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
@@ -50,6 +51,7 @@ function do_ingeni_slick( $args ) {
 		'max_thumbs' => 0,
 		'show_thumbs' => 1,
 		'show_arrows' => 1,
+		'show_dots' => 0,
 		'shuffle' => 1,
 		'file_list' => "",
 		'file_ids' => "",
@@ -287,6 +289,11 @@ function do_ingeni_slick( $args ) {
 	} else {
 		$params['show_arrows'] = 'false';
 	}
+	if ($params['show_dots'] == 1) {
+		$params['show_dots'] = 'true';
+	} else {
+		$params['show_dots'] = 'false';
+	}
 
 	if ($params['fade'] == 1) {
 		$params['fade'] = 'true';
@@ -320,6 +327,7 @@ function do_ingeni_slick( $args ) {
 					slidesToScroll: 1,
 					adaptiveHeight: " . $params['adaptive_height'] . ",
 					arrows: ". $params['show_arrows'] . ",
+					dots:  ". $params['show_dots'] . ",
 					autoplay: ". $params['autoplay'] . ",
 					autoplaySpeed: " . $params['speed'] . ",
 					fade: " . $params['fade'] . ",

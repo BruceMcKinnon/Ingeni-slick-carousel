@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.06
+Stable tag: 2019.07
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -55,6 +55,8 @@ max_thumbs: Max. number of thumbnails to display. Defaults to 0 (show all thumbn
 
 show_arrows: Show navigation arrows. Defaults to 1 (show arrows).
 
+show_dots: Show navigation dots. Defaults to 0 (show dots).
+
 shuffle: Randomly shuffle the order of the images. Defaults to 1 (shuffle images).
 
 speed: msecs to display image before moving to the next. Defaults to 2000 (2 secs).
@@ -96,3 +98,5 @@ v2019.04 - Added the 'post_ids', 'post_type' and 'orderby' options - supply a li
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 
 v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
+
+v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
