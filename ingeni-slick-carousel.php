@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.07
+Version: 2019.08
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -39,7 +39,26 @@ v2019.04	- Added the 'post_ids', 'post_type' and 'orderby' options - supply a li
 v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
 v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
+v2019.08  - More complete implementation of link_posts.
+						Added the 'translucent_layer_class' option.
+						Trapping of invalid paths at scandir().
 */
+
+if (!function_exists("fb_log")) {
+	function fb_log($msg) {
+		$upload_dir = wp_upload_dir();
+		$logFile = $upload_dir['basedir'] . '/' . 'fb_log.txt';
+		date_default_timezone_set('Australia/Sydney');
+
+		// Now write out to the file
+		$log_handle = fopen($logFile, "a");
+		if ($log_handle !== false) {
+			fwrite($log_handle, date("H:i:s").": ".$msg."\r\n");
+			fclose($log_handle);
+		}
+	}
+}
+
 
 add_shortcode( 'ingeni-slick','do_ingeni_slick' );
 function do_ingeni_slick( $args ) {
@@ -75,6 +94,11 @@ function do_ingeni_slick( $args ) {
 	), $args );
 
 
+	$titles = array();
+	$links = array();
+
+//fb_log('params:'.print_r($params,true));
+
 	if ( strlen($params['post_ids']) > 0 ) {
 		//
 		// Content based slides
@@ -96,11 +120,33 @@ function do_ingeni_slick( $args ) {
 		$sync1 = "";
 		$sync2 = "";
 
+
 		$slider_for_class = "slider-for";
 		$slider_nav_class = "slider-nav";
 
 		foreach( $content_post as $post ) {
-			$sync1 .= '<div class="item">' . apply_filters('the_content', $post->post_content) . '</div>';
+			if ( has_post_thumbnail( $post->ID ) ) {
+				$thumb_id = get_post_thumbnail_id($post->ID);
+				$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
+				$style = 'background-image: url('. $thumb_url[0] .')';
+				
+				array_push( $titles, get_the_title($post->ID) );
+				array_push( $links, get_the_permalink($post->ID) );
+
+				if ($params['link_post'] > 0) {
+					$sync1 .= '<a href="'.get_the_permalink($post->ID).'">';
+				}
+
+				$sync1 .= '<div class="item"><div style="'.$style.'"><div class="title-layer"><h3>' . get_the_title($post->ID) .'</h3></div></div></div>';
+
+				if ($params['link_post'] > 0) {
+					$sync1 .= '</a>';
+				}
+
+
+			} else {
+				$sync1 .= '<div class="item">' . apply_filters('the_content', $post->post_content) . '</div>';
+			}
 
 			++$idx;
 			if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
@@ -114,8 +160,6 @@ function do_ingeni_slick( $args ) {
 		//
 		if ( strlen($params['category']) > 0 ) {
 			$photos = array();
-			$titles = array();
-			$links = array();
 
 			$order_by = 'date';
 			if ( $params['shuffle'] > 0) {
@@ -188,6 +232,9 @@ function do_ingeni_slick( $args ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
 				}
 				$photos = scandir( $root_dir . $params['source_path']);
+				if (!$photos) {
+					throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
+				}
 			} catch (Exception $ex) {
 				if ( function_exists("fb_log") ) {
 					fb_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
@@ -211,7 +258,8 @@ function do_ingeni_slick( $args ) {
 				$params['adaptiveHeight'] = 'true';
 			}			
 		}
-		
+
+
 		$idx = 0;
 		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
 			shuffle($photos);
@@ -257,10 +305,16 @@ function do_ingeni_slick( $args ) {
 
 	}
 
-	$sync2 = $sync1;
+	//$sync2 = $sync1;
 
+	$sync2 = str_replace($links,"#",$sync1);
 
+	
+	fb_log('links: '.print_r($links,true));
+	//fb_log('titles: '.print_r($titles,true));
+	
 
+	
 	$params['fade'] = "true";
 	if ( $params['slides_to_show'] < 1 ) {
 		$params['fade'] = "false";
@@ -334,7 +388,7 @@ function do_ingeni_slick( $args ) {
 					centerMode: " . $params['center_mode'] . ",
 					variableWidth: " . $params['variable_width'];
 	if ( ($params['show_thumbs'] != 0) && ($params['sync_thumbs'] != 0) ) {
-		$js .= "asNavFor: '.".$slider_nav_class."',";
+		$js .= ",asNavFor: '.".$slider_nav_class."',";
 	}
 	$js .= "});";
 

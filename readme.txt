@@ -100,3 +100,7 @@ v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
 v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
 
 v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
+
+v2019.08  - More complete implementation of link_posts.
+		Added the 'translucent_layer_class' option.
+		Trapping of invalid paths at scandir().
