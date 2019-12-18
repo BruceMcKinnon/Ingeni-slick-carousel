@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2019.07
+Stable tag: 2019.09
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -104,3 +104,5 @@ v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
 v2019.08  - More complete implementation of link_posts.
 		Added the 'translucent_layer_class' option.
 		Trapping of invalid paths at scandir().
+v2019.09 - Added the 'slides_to_show' option.
+	 - Added support for MP4 videos

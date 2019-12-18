@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.08
+Version: 2019.09
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -42,6 +42,8 @@ v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
 v2019.08  - More complete implementation of link_posts.
 						Added the 'translucent_layer_class' option.
 						Trapping of invalid paths at scandir().
+v2019.09 - Added the 'slides_to_show' option.
+				 - Added support for MP4 videos
 */
 
 if (!function_exists("fb_log")) {
@@ -56,6 +58,13 @@ if (!function_exists("fb_log")) {
 			fwrite($log_handle, date("H:i:s").": ".$msg."\r\n");
 			fclose($log_handle);
 		}
+	}
+}
+
+if (!function_exists("endsWith")) {
+	function endsWith($haystack, $needle) {
+			// search forward starting from end minus needle length characters
+			return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
 	}
 }
 
@@ -91,6 +100,7 @@ function do_ingeni_slick( $args ) {
 		'show_title' => 0,
 		'translucent_layer_class' => '',
 		'link_post' => 0,
+		'slides_to_show' => 0,
 	), $args );
 
 
@@ -172,7 +182,7 @@ function do_ingeni_slick( $args ) {
 				'orderby' => $order_by,
 			);
 
-			fb_log(print_r($post_attribs,true));
+			//fb_log(print_r($post_attribs,true));
 			$myquery = new WP_Query( $post_attribs );
 		
 			if ( $myquery->have_posts() ) {
@@ -259,20 +269,34 @@ function do_ingeni_slick( $args ) {
 			}			
 		}
 
-
 		$idx = 0;
 		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
 			shuffle($photos);
 		}
+
 		foreach ($photos as $photo) {
-			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false) ) {		
+			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false)  || (strpos(strtolower($photo),'.mp4') !== false) ) {		
 				if ($params['bg_images'] > 0) {
 
 					if ($params['link_post'] > 0) {
 						$sync1 .= '<a href="'.$links[$idx].'">';
 					}
 
-					$sync1 .= '<div class="item"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+					if ( endsWith($photo,'.mp4') ) {
+
+						// Disable autoplay if the first slide is a video
+						if ($idx == 0) {
+							$params['autoplay'] = 0;
+						}
+
+						$sync1 .= '<div class="item"><div class="slick-video-wrap hide-for-small" >';
+						$sync1 .= '<video class="slick-video" id="slick-video-'.$idx.'"muted preload data-origin-x="0" data-origin-y="0" >';
+						$sync1 .= '<source src="' . get_bloginfo('url') . '/home-slider/' . $photo . '" type="video/mp4">';
+						$sync1 .= 'Your browser does not support the video tag.</video>';
+
+					} else {
+						$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+					}
 
 					if ($params['translucent_layer_class'] !== '') {
 						$sync1 .= '<div class="' . $params['translucent_layer_class'] . '"></div>';
@@ -319,19 +343,7 @@ function do_ingeni_slick( $args ) {
 	if ( $params['slides_to_show'] < 1 ) {
 		$params['fade'] = "false";
 	}
-	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":1,"arrows":'.$show_arrows.',"speed":'.$params['speed'].',"fade":'.$fade.',"autoplay":true}\'';
-	$data_attribs = '';
 
-
-	
-	$sync1 = '<div class="'.$slider_for_class.'">' . $sync1 . '</div>';
-	if ($params['show_thumbs']  > 0) {
-		$sync2 = '<div class="'.$slider_nav_class.'">' . $sync2 . '</div>';
-	} else {
-		$sync2 = '';
-	}
-
-	
 	if ($params['autoplay'] == 1) {
 		$params['autoplay'] = 'true';
 	} else {
@@ -355,6 +367,22 @@ function do_ingeni_slick( $args ) {
 		$params['fade'] = 'false';
 	}
 
+
+	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":1,"arrows":'.$params['show_arrows'].',"speed":'.$params['speed'].',"fade":'.$params['fade'].',"autoplay":'.$params['autoplay'].'}\'';
+	$data_attribs = '';
+
+
+	
+	$sync1 = '<div class="'.$slider_for_class.'">' . $sync1 . '</div>';
+	if ($params['show_thumbs']  > 0) {
+		$sync2 = '<div class="'.$slider_nav_class.'">' . $sync2 . '</div>';
+	} else {
+		$sync2 = '';
+	}
+
+	
+
+
 	// Can't use fade and centerMode/variableWidth together.
 	if ( ($params['center_mode'] == 1) && ($params['variable_width'] == 1) ) {
 		$params['fade'] = 'false';
@@ -373,8 +401,38 @@ function do_ingeni_slick( $args ) {
 	}
 
 
+	$js = "<script>if ( jQuery('.slick-video').length > 0 ) {
+		jQuery('.".$slider_for_class."').on('init', function(event, slick) {
+			slickCheckVideo(0);
+		});
 
-	$js = "<script>jQuery(document).ready(
+		jQuery('.".$slider_for_class."').on('afterChange', function(event, slick, currentSlide, nextSlide) {
+			slickCheckVideo(currentSlide);
+		});
+
+		function slickCheckVideo( currentSlide ) {
+//console.log('checking current slide:'+currentSlide);
+			if ( jQuery('#slick-video-'+currentSlide).length > 0 ) {
+				try {
+					jQuery('.".$slider_for_class."').slick('slickPause');
+				} catch (exc) {
+					console.log('checking current slide:'+currentSlide);
+				}
+				try {
+					jQuery('#slick-video-'+currentSlide)[0].play(); 
+				} catch(exe) {
+					console.log('play exception current slide:'+currentSlide);
+					jQuery('.".$slider_for_class."').slick('slickPlay');
+				}
+			}
+		}
+
+		jQuery('.slick-video').on('ended',function(){           
+			jQuery('.".$slider_for_class."').slick('slickPlay');
+		});
+	}</script>";
+
+	$js .= "<script>var $ = jQuery();jQuery(document).ready(
 			function($) {
 				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: 1,
@@ -403,7 +461,10 @@ function do_ingeni_slick( $args ) {
 					focusOnSelect: true
 				});";
 		}
-	$js .= "});</script>";
+	$js .= "});";
+	$js .= "</script>";
+
+
 	return '<div class="'.$params['wrapper_class'].'">'.$sync1.$sync2.'</div>'.$js;
 }
 
