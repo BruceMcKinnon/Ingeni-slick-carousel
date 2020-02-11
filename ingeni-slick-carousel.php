@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2019.09
+Version: 2020.01
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -44,6 +44,8 @@ v2019.08  - More complete implementation of link_posts.
 						Trapping of invalid paths at scandir().
 v2019.09 - Added the 'slides_to_show' option.
 				 - Added support for MP4 videos
+v2020.01 - Added delay_start msec timer to delay video/slider start. Defaults to 0. Max value = 60000.
+
 */
 
 if (!function_exists("fb_log")) {
@@ -101,6 +103,7 @@ function do_ingeni_slick( $args ) {
 		'translucent_layer_class' => '',
 		'link_post' => 0,
 		'slides_to_show' => 0,
+		'delay_start' => 0,
 	), $args );
 
 
@@ -400,18 +403,33 @@ function do_ingeni_slick( $args ) {
 		$params['variable_width'] = 'false';
 	}
 
+	if ( !is_numeric( $params['delay_start'] ) ) {
+		$params['delay_start']  = 0;
+	} else {
+		$params['delay_start'] = intval($params['delay_start']);
+	}
+
+	if ( $params['delay_start'] < 0 ) {
+		$params['delay_start'] = 0;
+	} elseif ( $params['delay_start'] > 60000 ) {
+		$params['variable_width'] = 60000;
+	}
 
 	$js = "<script>if ( jQuery('.slick-video').length > 0 ) {
 		jQuery('.".$slider_for_class."').on('init', function(event, slick) {
-			slickCheckVideo(0);
+
+			setTimeout( function() { slickCheckVideo(0); }, " . $params['delay_start'] . ");
+		
 		});
+
+
 
 		jQuery('.".$slider_for_class."').on('afterChange', function(event, slick, currentSlide, nextSlide) {
 			slickCheckVideo(currentSlide);
 		});
 
 		function slickCheckVideo( currentSlide ) {
-//console.log('checking current slide:'+currentSlide);
+console.log('checking current slide:'+currentSlide);
 			if ( jQuery('#slick-video-'+currentSlide).length > 0 ) {
 				try {
 					jQuery('.".$slider_for_class."').slick('slickPause');
@@ -426,7 +444,10 @@ function do_ingeni_slick( $args ) {
 				}
 			}
 		}
-
+		jQuery('.slick-video').on('paused',function(){
+console.log('** paused');           
+			jQuery('.".$slider_for_class."').slick('slickPlay');
+		});
 		jQuery('.slick-video').on('ended',function(){           
 			jQuery('.".$slider_for_class."').slick('slickPlay');
 		});
