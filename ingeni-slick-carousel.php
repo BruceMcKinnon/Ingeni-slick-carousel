@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.01
+Version: 2020.02
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -9,7 +9,7 @@ Description: Slick-based carousel for Wordpress
 */
 
 /*
-Copyright (c) 2019 Ingeni Web Solutions
+Copyright (c) 2020 Ingeni Web Solutions
 Released under the GPL license
 http://www.gnu.org/licenses/gpl.txt
 
@@ -45,7 +45,7 @@ v2019.08  - More complete implementation of link_posts.
 v2019.09 - Added the 'slides_to_show' option.
 				 - Added support for MP4 videos
 v2020.01 - Added delay_start msec timer to delay video/slider start. Defaults to 0. Max value = 60000.
-
+v2020.02 - Added the slides_to_scroll option. Defaults to 1.
 */
 
 if (!function_exists("fb_log")) {
@@ -104,6 +104,7 @@ function do_ingeni_slick( $args ) {
 		'link_post' => 0,
 		'slides_to_show' => 0,
 		'delay_start' => 0,
+		'slides_to_scroll' => 1,
 	), $args );
 
 
@@ -341,7 +342,14 @@ function do_ingeni_slick( $args ) {
 	//fb_log('titles: '.print_r($titles,true));
 	
 
-	
+	if ( (!is_int($params['slides_to_show']) ) || ($params['slides_to_show'] < 0) ) {
+		$params['slides_to_show'] = 1;
+	}
+	if ( (!is_int($params['slides_to_scroll']) ) || ($params['slides_to_scroll'] < 1) ) {
+		$params['slides_to_scroll'] = 1;
+	}
+
+
 	$params['fade'] = "true";
 	if ( $params['slides_to_show'] < 1 ) {
 		$params['fade'] = "false";
@@ -371,7 +379,8 @@ function do_ingeni_slick( $args ) {
 	}
 
 
-	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":1,"arrows":'.$params['show_arrows'].',"speed":'.$params['speed'].',"fade":'.$params['fade'].',"autoplay":'.$params['autoplay'].'}\'';
+
+	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":'.$params['slides_to_scroll'].',"arrows":'.$params['show_arrows'].',"speed":'.$params['speed'].',"fade":'.$params['fade'].',"autoplay":'.$params['autoplay'].'}\'';
 	$data_attribs = '';
 
 
@@ -456,8 +465,8 @@ console.log('** paused');
 	$js .= "<script>var $ = jQuery();jQuery(document).ready(
 			function($) {
 				jQuery('.".$slider_for_class."').slick({
-					slidesToShow: 1,
-					slidesToScroll: 1,
+					slidesToShow: " . $params['slides_to_show'] . ",
+					slidesToScroll: " . $params['slides_to_scroll'] . ",
 					adaptiveHeight: " . $params['adaptive_height'] . ",
 					arrows: ". $params['show_arrows'] . ",
 					dots:  ". $params['show_dots'] . ",

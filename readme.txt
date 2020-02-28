@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.01
+Stable tag: 2020.02
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -108,5 +108,6 @@ v2019.08  - More complete implementation of link_posts.
 v2019.09 - Added the 'slides_to_show' option.
 		- Added support for MP4 videos
 v2020.01 - Added delay_start msec timer to delay video/slider start. Defaults to 0. Max value = 60000.
+v2020.02 - Added the 'slides_to_scroll' option. Defaults to 1.
 
 
