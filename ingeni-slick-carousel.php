@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.04
+Version: 2020.05
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -50,7 +50,8 @@ v2020.03 - Fixed bug where slides_to_show could be set < 1.
 				 - Updated plugin checker updater to 4.9
 				 - Reverted to slick carousel 1.8.1 - latest supported version
 v2020.04 - Plugin update code should have been called by the WP init hook.
-
+v2020.05 - Added support for multiple sliders (unique image IDs).
+				 - Check the source_path includes a trailing slash.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -110,11 +111,21 @@ function do_ingeni_slick( $args ) {
 		'slides_to_show' => 1,
 		'delay_start' => 0,
 		'slides_to_scroll' => 1,
+		'slider_for_class' => 'slider-for',
+		'slider_nav_class' => 'slider-nav',
 	), $args );
 
 
 	$titles = array();
 	$links = array();
+
+	$slider_for_class = $params['slider_for_class'];
+	$slider_nav_class = $params['slider_nav_class'];
+
+	if (!endsWith($params['source_path'], "/") ) {
+		$params['source_path'] .= '/';
+	}
+
 
 //ingeni_slick_log('params:'.print_r($params,true));
 
@@ -141,14 +152,11 @@ function do_ingeni_slick( $args ) {
 		$sync2 = "";
 
 
-		$slider_for_class = "slider-for";
-		$slider_nav_class = "slider-nav";
-
 		foreach( $content_post as $post ) {
 			if ( has_post_thumbnail( $post->ID ) ) {
 				$thumb_id = get_post_thumbnail_id($post->ID);
 				$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
-				$style = 'background-image: url('. $thumb_url[0] .')';
+				$style = 'background-image: url('. $thumb_url[0] .');';
 				
 				array_push( $titles, get_the_title($post->ID) );
 				array_push( $links, get_the_permalink($post->ID) );
@@ -250,7 +258,7 @@ function do_ingeni_slick( $args ) {
 				if ($params['start_path'] != '') {
 					chdir($params['start_path']);
 				}
-ingeni_slick_log('curr path:'.getcwd() .'|'.$params['source_path']);
+//ingeni_slick_log('curr path:'.getcwd() .'|'.$params['source_path']);
 				$root_dir = getcwd();
 				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
@@ -270,8 +278,8 @@ ingeni_slick_log('curr path:'.getcwd() .'|'.$params['source_path']);
 		$sync1 = "";
 		$sync2 = "";
 
-		$slider_for_class = "slider-for";
-		$slider_nav_class = "slider-nav";
+		//$slider_for_class = "slider-for";
+		//$slider_nav_class = "slider-nav";
 
 		if ($params['bg_images'] == 1) {
 			$params['adaptive_height'] = 'false';
@@ -284,13 +292,14 @@ ingeni_slick_log('curr path:'.getcwd() .'|'.$params['source_path']);
 		}
 
 		$idx = 0;
+		$prefix = rand(10,99);
 		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
 			shuffle($photos);
 		}
-ingeni_slick_log('photos to show: '.print_r($photos,true));
+///ingeni_slick_log('photos to show: '.print_r($photos,true));
 		foreach ($photos as $photo) {
 			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false)  || (strpos(strtolower($photo),'.mp4') !== false) ) {		
-ingeni_slick_log('photo to show: '.$home_path . $photo);
+//ingeni_slick_log('photo to show: '.$home_path . $photo);
 				if ($params['bg_images'] > 0) {
 
 					if ($params['link_post'] > 0) {
@@ -305,12 +314,12 @@ ingeni_slick_log('photo to show: '.$home_path . $photo);
 						}
 
 						$sync1 .= '<div class="item"><div class="slick-video-wrap hide-for-small" >';
-						$sync1 .= '<video class="slick-video" id="slick-video-'.$idx.'"muted preload data-origin-x="0" data-origin-y="0" >';
+						$sync1 .= '<video class="slick-video" id="slick-video-'.$prefix.'-'.$idx.'"muted preload data-origin-x="0" data-origin-y="0" >';
 						$sync1 .= '<source src="' . get_bloginfo('url') . '/home-slider/' . $photo . '" type="video/mp4">';
 						$sync1 .= 'Your browser does not support the video tag.</video>';
 
 					} else {
-						$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+						$sync1 .= '<div class="item" id="slick-image-'.$prefix.'-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .');" draggable="false">';
 					}
 
 					if ($params['translucent_layer_class'] !== '') {
@@ -333,7 +342,7 @@ ingeni_slick_log('photo to show: '.$home_path . $photo);
 					}
 	
 				} else {
-ingeni_slick_log($home_path . $photo);
+//ingeni_slick_log($home_path . $photo);
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
 				++$idx;

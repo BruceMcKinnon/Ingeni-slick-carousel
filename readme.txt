@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.04
+Stable tag: 2020.05
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -113,3 +113,5 @@ v2020.03 - Fixed bug where slides_to_show could be set < 1.
 	- Updated plugin checker updater to 4.9
 	- Reverted to slick carousel 1.8.1 - latest supported version
 v2020.04 - Plugin update code should have been called by the WP init hook.
+v2020.05 - Added support for multiple sliders (unique image IDs).
+	- Check the source_path includes a trailing slash.
