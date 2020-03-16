@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.02
+Version: 2020.03
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -46,6 +46,9 @@ v2019.09 - Added the 'slides_to_show' option.
 				 - Added support for MP4 videos
 v2020.01 - Added delay_start msec timer to delay video/slider start. Defaults to 0. Max value = 60000.
 v2020.02 - Added the slides_to_scroll option. Defaults to 1.
+v2020.03 - Fixed bug where slides_to_show could be set < 1.
+				 - Updated plugin checker updater to 4.9
+				 - Reverted to slick carousel 1.8.1 - latest supported version
 */
 
 if (!function_exists("fb_log")) {
@@ -102,7 +105,7 @@ function do_ingeni_slick( $args ) {
 		'show_title' => 0,
 		'translucent_layer_class' => '',
 		'link_post' => 0,
-		'slides_to_show' => 0,
+		'slides_to_show' => 1,
 		'delay_start' => 0,
 		'slides_to_scroll' => 1,
 	), $args );
@@ -240,7 +243,7 @@ function do_ingeni_slick( $args ) {
 				if ($params['start_path'] != '') {
 					chdir($params['start_path']);
 				}
-	//fb_log('curr path:'.getcwd() .'|'.$source_path);
+//fb_log('curr path:'.getcwd() .'|'.$params['source_path']);
 				$root_dir = getcwd();
 				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
@@ -264,12 +267,12 @@ function do_ingeni_slick( $args ) {
 		$slider_nav_class = "slider-nav";
 
 		if ($params['bg_images'] == 1) {
-			$params['adaptiveHeight'] = 'false';
+			$params['adaptive_height'] = 'false';
 		} else {
-			if ($params['adaptiveHeight'] == '0') {
-				$params['adaptiveHeight'] = 'false';
+			if ($params['adaptive_height'] == '0') {
+				$params['adaptive_height'] = 'false';
 			} else {
-				$params['adaptiveHeight'] = 'true';
+				$params['adaptive_height'] = 'true';
 			}			
 		}
 
@@ -322,6 +325,7 @@ function do_ingeni_slick( $args ) {
 					}
 	
 				} else {
+//fb_log($home_path . $photo);
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
 				++$idx;
@@ -338,20 +342,21 @@ function do_ingeni_slick( $args ) {
 	$sync2 = str_replace($links,"#",$sync1);
 
 	
-	fb_log('links: '.print_r($links,true));
+	//fb_log('links: '.print_r($links,true));
 	//fb_log('titles: '.print_r($titles,true));
 	
 
-	if ( (!is_int($params['slides_to_show']) ) || ($params['slides_to_show'] < 0) ) {
-		$params['slides_to_show'] = 1;
-	}
-	if ( (!is_int($params['slides_to_scroll']) ) || ($params['slides_to_scroll'] < 1) ) {
-		$params['slides_to_scroll'] = 1;
-	}
+	//if ( (!is_int($params['slides_to_show']) ) || ($params['slides_to_show'] < 0) ) {
+		//$params['slides_to_show'] = 1;
+	//}
+	//if ( (!is_int($params['slides_to_scroll']) ) || ($params['slides_to_scroll'] < 1) ) {
+		//$params['slides_to_scroll'] = 1;
+	//}
 
 
 	$params['fade'] = "true";
 	if ( $params['slides_to_show'] < 1 ) {
+		$params['slides_to_show'] = 1;
 		$params['fade'] = "false";
 	}
 
@@ -425,6 +430,7 @@ function do_ingeni_slick( $args ) {
 	}
 
 	$js = "<script>if ( jQuery('.slick-video').length > 0 ) {
+//console.log('there is video');
 		jQuery('.".$slider_for_class."').on('init', function(event, slick) {
 
 			setTimeout( function() { slickCheckVideo(0); }, " . $params['delay_start'] . ");
@@ -438,7 +444,7 @@ function do_ingeni_slick( $args ) {
 		});
 
 		function slickCheckVideo( currentSlide ) {
-console.log('checking current slide:'+currentSlide);
+//console.log('checking current slide:'+currentSlide);
 			if ( jQuery('#slick-video-'+currentSlide).length > 0 ) {
 				try {
 					jQuery('.".$slider_for_class."').slick('slickPause');
@@ -509,14 +515,26 @@ function ingeni_load_slick() {
 	wp_register_script( 'slick_js', $dir .'slick.min.js', false, '1.8', true );
 	wp_enqueue_script( 'slick_js' );
 
+	//
+	// Plugin CSS
+	//
+	wp_enqueue_style( 'ingeni-slick-css', plugins_url('ingeni-slick-carousel.css', __FILE__) );
 
-	// Init auto-update from GitHub repo
+
+
 	require 'plugin-update-checker/plugin-update-checker.php';
 	$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 		'https://github.com/BruceMcKinnon/Ingeni-slick-carousel',
 		__FILE__,
 		'Ingeni-slick-carousel'
 	);
+	
+	//Optional: If you're using a private repository, specify the access token like this:
+	//$myUpdateChecker->setAuthentication('your-token-here');
+	
+	//Optional: Set the branch that contains the stable release.
+	//$myUpdateChecker->setBranch('stable-branch-name');
+
 }
 add_action( 'wp_enqueue_scripts', 'ingeni_load_slick' );
 
