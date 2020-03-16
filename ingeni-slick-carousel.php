@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.03
+Version: 2020.04
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -49,12 +49,14 @@ v2020.02 - Added the slides_to_scroll option. Defaults to 1.
 v2020.03 - Fixed bug where slides_to_show could be set < 1.
 				 - Updated plugin checker updater to 4.9
 				 - Reverted to slick carousel 1.8.1 - latest supported version
+v2020.04 - Plugin update code should have been called by the WP init hook.
+
 */
 
-if (!function_exists("fb_log")) {
-	function fb_log($msg) {
+if (!function_exists("ingeni_slick_log")) {
+	function ingeni_slick_log($msg) {
 		$upload_dir = wp_upload_dir();
-		$logFile = $upload_dir['basedir'] . '/' . 'fb_log.txt';
+		$logFile = $upload_dir['basedir'] . '/' . 'ingeni_slick_log.txt';
 		date_default_timezone_set('Australia/Sydney');
 
 		// Now write out to the file
@@ -114,9 +116,10 @@ function do_ingeni_slick( $args ) {
 	$titles = array();
 	$links = array();
 
-//fb_log('params:'.print_r($params,true));
+//ingeni_slick_log('params:'.print_r($params,true));
 
 	if ( strlen($params['post_ids']) > 0 ) {
+//ingeni_slick_log('post ids');
 		//
 		// Content based slides
 		//
@@ -172,10 +175,12 @@ function do_ingeni_slick( $args ) {
 		}
 
 	}	else {
+//ingeni_slick_log('image based');
 		//
 		// Image-based slides
 		//
 		if ( strlen($params['category']) > 0 ) {
+//ingeni_slick_log('cat');
 			$photos = array();
 
 			$order_by = 'date';
@@ -189,7 +194,7 @@ function do_ingeni_slick( $args ) {
 				'orderby' => $order_by,
 			);
 
-			//fb_log(print_r($post_attribs,true));
+			//ingeni_slick_log(print_r($post_attribs,true));
 			$myquery = new WP_Query( $post_attribs );
 		
 			if ( $myquery->have_posts() ) {
@@ -204,6 +209,7 @@ function do_ingeni_slick( $args ) {
 			}
 
 		} elseif ( strlen($params['file_list']) > 0 ) {
+//ingeni_slick_log('file list');
 			//
 			// A list of file names were passed in
 			//
@@ -211,12 +217,13 @@ function do_ingeni_slick( $args ) {
 			$home_path = $params['file_path'];
 
 		} elseif ( strlen($params['file_ids']) > 0 ) {
+//ingeni_slick_log('file ids');
 			//
 			// If a list of media ID, get the source URLs and create a file_list
 			//
 			$photos = array();
 			$home_path = "";
-			//fb_log('file ids='.$params['file_ids']);
+			//ingeni_slick_log('file ids='.$params['file_ids']);
 
 			$media_ids = array();
 			$media_ids = explode(",",$params['file_ids']);
@@ -243,7 +250,7 @@ function do_ingeni_slick( $args ) {
 				if ($params['start_path'] != '') {
 					chdir($params['start_path']);
 				}
-//fb_log('curr path:'.getcwd() .'|'.$params['source_path']);
+ingeni_slick_log('curr path:'.getcwd() .'|'.$params['source_path']);
 				$root_dir = getcwd();
 				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
@@ -253,8 +260,8 @@ function do_ingeni_slick( $args ) {
 					throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
 				}
 			} catch (Exception $ex) {
-				if ( function_exists("fb_log") ) {
-					fb_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
+				if ( function_exists("ingeni_slick_log") ) {
+					ingeni_slick_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
 				}
 			}
 			$home_path = get_bloginfo('url') . $params['source_path'];
@@ -280,9 +287,10 @@ function do_ingeni_slick( $args ) {
 		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
 			shuffle($photos);
 		}
-
+ingeni_slick_log('photos to show: '.print_r($photos,true));
 		foreach ($photos as $photo) {
 			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false)  || (strpos(strtolower($photo),'.mp4') !== false) ) {		
+ingeni_slick_log('photo to show: '.$home_path . $photo);
 				if ($params['bg_images'] > 0) {
 
 					if ($params['link_post'] > 0) {
@@ -325,7 +333,7 @@ function do_ingeni_slick( $args ) {
 					}
 	
 				} else {
-//fb_log($home_path . $photo);
+ingeni_slick_log($home_path . $photo);
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
 				++$idx;
@@ -342,8 +350,8 @@ function do_ingeni_slick( $args ) {
 	$sync2 = str_replace($links,"#",$sync1);
 
 	
-	//fb_log('links: '.print_r($links,true));
-	//fb_log('titles: '.print_r($titles,true));
+	//ingeni_slick_log('links: '.print_r($links,true));
+	//ingeni_slick_log('titles: '.print_r($titles,true));
 	
 
 	//if ( (!is_int($params['slides_to_show']) ) || ($params['slides_to_show'] < 0) ) {
@@ -519,9 +527,11 @@ function ingeni_load_slick() {
 	// Plugin CSS
 	//
 	wp_enqueue_style( 'ingeni-slick-css', plugins_url('ingeni-slick-carousel.css', __FILE__) );
+}
+add_action( 'wp_enqueue_scripts', 'ingeni_load_slick' );
 
 
-
+function ingeni_update_slick() {
 	require 'plugin-update-checker/plugin-update-checker.php';
 	$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 		'https://github.com/BruceMcKinnon/Ingeni-slick-carousel',
@@ -536,7 +546,7 @@ function ingeni_load_slick() {
 	//$myUpdateChecker->setBranch('stable-branch-name');
 
 }
-add_action( 'wp_enqueue_scripts', 'ingeni_load_slick' );
+add_action( 'init', 'ingeni_update_slick' );
 
 
 // Plugin activation/deactivation hooks
