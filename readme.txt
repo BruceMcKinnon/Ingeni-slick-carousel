@@ -113,5 +113,5 @@ v2020.03 - Fixed bug where slides_to_show could be set < 1.
 	- Updated plugin checker updater to 4.9
 	- Reverted to slick carousel 1.8.1 - latest supported version
 v2020.04 - Plugin update code should have been called by the WP init hook.
-v2020.05 - Added support for multiple sliders (unique image IDs).
-	- Check the source_path includes a trailing slash.
+
+v2020.05 - When loading background videos, the source_path was not being respected.
