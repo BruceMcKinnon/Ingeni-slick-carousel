@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.05
+Stable tag: 2020.06
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -77,7 +77,38 @@ center_mode: When using variable width, center the image in the div. Defaults to
 
 variable_width: Cope with variable width images. Default to 0. 
 
-fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode. 
+fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode.
+
+order: Defaults to 'DESC'. Other valid option is 'ASC'.
+
+show_content: If not using show_title, the content of a post is shown. Used to allow copy to overlay a background image.
+
+
+
+
+
+
+
+== Examples ==
+
+
+Carousel with images from a folder:
+
+[ingeni-slick source_path='/photos-2020/winners/vic/' max_thumbs=0 variable_width=1 center_mode=1 speed=20000]
+
+
+
+
+Carousel with background image and content, all derived from a category of posts:
+
+[ingeni-slick category="home-hero" bg_images="1" shuffle="0" show_arrows="0" show_thumbs="0" show_content="1" translucent_layer_class="translucent-black" speed=4000 order="ASC"]
+
+
+
+
+
+
+
 
 
 
@@ -115,3 +146,6 @@ v2020.03 - Fixed bug where slides_to_show could be set < 1.
 v2020.04 - Plugin update code should have been called by the WP init hook.
 
 v2020.05 - When loading background videos, the source_path was not being respected.
+
+v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
+	 - Added the 'order' param.

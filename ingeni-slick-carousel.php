@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.05
+Version: 2020.06
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -51,7 +51,8 @@ v2020.03 - Fixed bug where slides_to_show could be set < 1.
 				 - Reverted to slick carousel 1.8.1 - latest supported version
 v2020.04 - Plugin update code should have been called by the WP init hook.
 v2020.05 - When loading background videos, the source_path was not being respected.
-
+v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
+					- Added the 'order' param.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -100,6 +101,7 @@ function do_ingeni_slick( $args ) {
 		'post_ids' => '',
 		'post_type' => 'content_block',
 		'orderby' => 'title',
+		'order' => 'ASC',
 		'center_mode' => 0,
 		'variable_width' => 0,
 		'fade' => 1,
@@ -111,11 +113,13 @@ function do_ingeni_slick( $args ) {
 		'slides_to_show' => 1,
 		'delay_start' => 0,
 		'slides_to_scroll' => 1,
+		'show_content' => 0,
 	), $args );
 
 
 	$titles = array();
 	$links = array();
+	$content = array();
 
 //ingeni_slick_log('params:'.print_r($params,true));
 
@@ -126,11 +130,17 @@ function do_ingeni_slick( $args ) {
 		//
 		$id_array = explode(",",$params['post_ids']);
 
+		$sort_order = strtoupper($params['order']);
+		if ($params['order'] != 'DESC') {
+			$sort_order = 'ASC';
+		}
+
 		$args = array(
 			'post__in' => $id_array,
 			'post_type' => $params['post_type'],
 			'class' => 'content_block_featured',
 			'orderby' => $params['orderby'],
+			'order' => $sort_order,
 		);
 
 		$idx = 0;
@@ -153,6 +163,7 @@ function do_ingeni_slick( $args ) {
 				
 				array_push( $titles, get_the_title($post->ID) );
 				array_push( $links, get_the_permalink($post->ID) );
+				array_push( $content, get_the_content($post->ID) );
 
 				if ($params['link_post'] > 0) {
 					$sync1 .= '<a href="'.get_the_permalink($post->ID).'">';
@@ -188,11 +199,18 @@ function do_ingeni_slick( $args ) {
 			if ( $params['shuffle'] > 0) {
 				$order_by = 'rand';
 			}
+
+			$sort_order = strtoupper($params['order']);
+			if ($params['order'] != 'DESC') {
+				$sort_order = 'ASC';
+			}
+
 			$post_attribs = array (
 				'posts_per_page' => $params['max_thumbs'],
 				'offset' => 0,
 				'category_name' => $params['category'],
 				'orderby' => $order_by,
+				'order' => $sort_order,
 			);
 
 			//ingeni_slick_log(print_r($post_attribs,true));
@@ -206,6 +224,7 @@ function do_ingeni_slick( $args ) {
 					array_push( $photos, $thumb_url );
 					array_push( $titles, get_the_title() );
 					array_push( $links, get_the_permalink() );
+					array_push( $content, get_the_content() );
 				}
 			}
 
@@ -328,7 +347,18 @@ function do_ingeni_slick( $args ) {
 						}
 
 						$sync1 .= '<div class="slide_title">' . $slide_title . '</div>';
+
+					} elseif ($params['show_content'] > 0) {
+						// v2020.06 - Insert the content from a post
+						if ( count($content) > $idx ) {
+							$slide_content = $content[$idx];
+						} else {
+							$slide_content = '';
+						}
+
+						$sync1 .= '<div class="slide_content">' . $slide_content . '</div>';
 					}
+
 					$sync1 .= '</div></div>';
 
 					if ($params['link_post'] > 0) {
@@ -336,7 +366,7 @@ function do_ingeni_slick( $args ) {
 					}
 	
 				} else {
-ingeni_slick_log($home_path . $photo);
+//ingeni_slick_log($home_path . $photo);
 					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 				}
 				++$idx;
@@ -365,7 +395,6 @@ ingeni_slick_log($home_path . $photo);
 	//}
 
 
-	$params['fade'] = "true";
 	if ( $params['slides_to_show'] < 1 ) {
 		$params['slides_to_show'] = 1;
 		$params['fade'] = "false";
