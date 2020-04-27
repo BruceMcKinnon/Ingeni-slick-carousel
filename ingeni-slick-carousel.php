@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.06
+Version: 2020.07
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -53,6 +53,8 @@ v2020.04 - Plugin update code should have been called by the WP init hook.
 v2020.05 - When loading background videos, the source_path was not being respected.
 v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
 					- Added the 'order' param.
+v2020.07  - Make sure the path exists before calling scandir().
+					- show_dots now respected in the slider nav block.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -275,9 +277,13 @@ function do_ingeni_slick( $args ) {
 				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
 				}
-				$photos = scandir( $root_dir . $params['source_path']);
-				if (!$photos) {
-					throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
+				if ( !file_exists($root_dir . $params['source_path']) ) {
+					throw new Exception('Path does not exist: '.$root_dir . $params['source_path']);
+				} else {
+					$photos = scandir( $root_dir . $params['source_path']);
+					if (!$photos) {
+						throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
+					}
 				}
 			} catch (Exception $ex) {
 				if ( function_exists("ingeni_slick_log") ) {
@@ -531,7 +537,7 @@ console.log('** paused');
 					slidesToShow: 3,
 					slidesToScroll: 1,
 					arrows: false,
-					dots: true,
+					dots:  ". $params['show_dots'] . ",
 					asNavFor: '.".$slider_for_class."',
 					centerMode: true,
 					focusOnSelect: true
