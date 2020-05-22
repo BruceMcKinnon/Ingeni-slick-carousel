@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.07
+Stable tag: 2020.08
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -123,4 +123,8 @@ v2020.05 - When loading background videos, the source_path was not being respect
 v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
  - Added the 'order' param.
 
-v2020.07 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
+v2020.07 - Make sure the path exists before calling scandir().
+ - show_dots now respected in the slider nav block.
+
+v2020.08 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
+
