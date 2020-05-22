@@ -77,38 +77,7 @@ center_mode: When using variable width, center the image in the div. Defaults to
 
 variable_width: Cope with variable width images. Default to 0. 
 
-fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode.
-
-order: Defaults to 'DESC'. Other valid option is 'ASC'.
-
-show_content: If not using show_title, the content of a post is shown. Used to allow copy to overlay a background image.
-
-
-
-
-
-
-
-== Examples ==
-
-
-Carousel with images from a folder:
-
-[ingeni-slick source_path='/photos-2020/winners/vic/' max_thumbs=0 variable_width=1 center_mode=1 speed=20000]
-
-
-
-
-Carousel with background image and content, all derived from a category of posts:
-
-[ingeni-slick category="home-hero" bg_images="1" shuffle="0" show_arrows="0" show_thumbs="0" show_content="1" translucent_layer_class="translucent-black" speed=4000 order="ASC"]
-
-
-
-
-
-
-
+fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode. 
 
 
 
@@ -126,30 +95,32 @@ v2019.03  - Added the 'file_ids' parameter. Allows you to pass in a list if medi
 
 v2019.04 - Added the 'post_ids', 'post_type' and 'orderby' options - supply a list of post ids that become the content of the slider.
 
-v2019.05	- Added support for 'fade', 'center_mode', 'variable_width' options.
+v2019.05 - Added support for 'fade', 'center_mode', 'variable_width' options.
 
-v2019.06  - Added the 'link_post' option. Allows linking to slides sourced from posts.
+v2019.06 - Added the 'link_post' option. Allows linking to slides sourced from posts.
 
-v2019.07  - Added the 'show_dots' option. Defaults to 0 or off.
+v2019.07 - Added the 'show_dots' option. Defaults to 0 or off.
 
-v2019.08  - More complete implementation of link_posts.
-		Added the 'translucent_layer_class' option.
-		Trapping of invalid paths at scandir().
+v2019.08 - More complete implementation of link_posts.
+ Added the 'translucent_layer_class' option.
+ Trapping of invalid paths at scandir().
 
 v2019.09 - Added the 'slides_to_show' option.
-		- Added support for MP4 videos
+ - Added support for MP4 videos
+
 v2020.01 - Added delay_start msec timer to delay video/slider start. Defaults to 0. Max value = 60000.
-v2020.02 - Added the 'slides_to_scroll' option. Defaults to 1.
+
+v2020.02 - Added the slides_to_scroll option. Defaults to 1.
+
 v2020.03 - Fixed bug where slides_to_show could be set < 1.
-	- Updated plugin checker updater to 4.9
-	- Reverted to slick carousel 1.8.1 - latest supported version
+ - Updated plugin checker updater to 4.9
+ - Reverted to slick carousel 1.8.1 - latest supported version
+
 v2020.04 - Plugin update code should have been called by the WP init hook.
 
 v2020.05 - When loading background videos, the source_path was not being respected.
 
 v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
-	 - Added the 'order' param.
+ - Added the 'order' param.
 
-v2020.07  - Make sure the path exists before calling scandir().
-	- show_dots now respected in the slider nav block.
-
+v2020.07 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.

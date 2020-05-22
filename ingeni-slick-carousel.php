@@ -53,8 +53,8 @@ v2020.04 - Plugin update code should have been called by the WP init hook.
 v2020.05 - When loading background videos, the source_path was not being respected.
 v2020.06 - Added 'show_content' option - display content from a post to be used an an overlay - e.g., text overlaying image
 					- Added the 'order' param.
-v2020.07  - Make sure the path exists before calling scandir().
-					- show_dots now respected in the slider nav block.
+v2020.07	- Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -116,6 +116,7 @@ function do_ingeni_slick( $args ) {
 		'delay_start' => 0,
 		'slides_to_scroll' => 1,
 		'show_content' => 0,
+		'template' => '',
 	), $args );
 
 
@@ -125,7 +126,65 @@ function do_ingeni_slick( $args ) {
 
 //ingeni_slick_log('params:'.print_r($params,true));
 
-	if ( strlen($params['post_ids']) > 0 ) {
+		// Attempt to load a template file
+		$template_file = '';
+		if ( $params['template'] != '' ) {
+			if ( file_exists( plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'] ) ) {
+				$template_file = plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'];
+			}
+			
+			if ( file_exists( get_template_directory_uri() .'/ingeni-slick-templates/'.$params['template'] ) ) {
+				$template_file = get_template_directory_uri() .'/ingeni-slick-templates/'.$params['template'];
+			}
+		}
+	
+		if ( file_exists( $template_file ) ) {
+			// Template-based  content
+			include_once($template_file);
+	
+			if ( function_exists("do_slick_template") ) {
+	
+				// Handle WooCommerce products
+				if ( $params['post_type'] == 'product' ) {
+					$args = array(
+						'orderby' => $params['orderby'],
+						'numberposts' => -1,
+						'post_type' => $params['post_type'],
+						'tax_query' => array(
+								array(
+										'taxonomy' => 'product_cat',
+										'terms' => array_map( 'sanitize_title', explode( ',', $params['category'] ) ),
+										'field' => 'slug',
+										'operator' => 'AND',
+								)
+							)
+					);
+				} else {
+					$args = array(
+						'category' => $params['category'],
+						'post_type' => $params['post_type'],
+						'orderby' => $params['orderby'],
+						'numberposts' => -1,
+					);
+				}
+	//fb_log(print_r($args,true));
+				$idx = 0;
+				$content_post = get_posts( $args );
+	
+				$inline_style = "";
+	
+				$sync1 = "";
+				$sync2 = "";
+	
+	
+				$slider_for_class = "slider-for";
+				$slider_nav_class = "slider-nav";
+	
+				foreach( $content_post as $post ) {
+					$sync1 .= '<div class="item">' . do_slick_template( $post ) . '</div>';
+				}
+			}
+		} elseif ( strlen($params['post_ids']) > 0 ) {
 //ingeni_slick_log('post ids');
 		//
 		// Content based slides
@@ -277,13 +336,9 @@ function do_ingeni_slick( $args ) {
 				if (stripos($root_dir, '/wp-admin') !== FALSE ) {
 					$root_dir = str_ireplace('/wp-admin','',$root_dir);
 				}
-				if ( !file_exists($root_dir . $params['source_path']) ) {
-					throw new Exception('Path does not exist: '.$root_dir . $params['source_path']);
-				} else {
-					$photos = scandir( $root_dir . $params['source_path']);
-					if (!$photos) {
-						throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
-					}
+				$photos = scandir( $root_dir . $params['source_path']);
+				if (!$photos) {
+					throw new Exception('Error while scanning: '.$root_dir . $params['source_path']);
 				}
 			} catch (Exception $ex) {
 				if ( function_exists("ingeni_slick_log") ) {
@@ -537,7 +592,7 @@ console.log('** paused');
 					slidesToShow: 3,
 					slidesToScroll: 1,
 					arrows: false,
-					dots:  ". $params['show_dots'] . ",
+					dots: true,
 					asNavFor: '.".$slider_for_class."',
 					centerMode: true,
 					focusOnSelect: true
