@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.08
+Version: 2020.09
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -56,7 +56,7 @@ v2020.06 - Added 'show_content' option - display content from a post to be used 
 v2020.07	- Make sure the path exists before calling scandir().
 					- show_dots now respected in the slider nav block.
 v2020.08 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
-
+v2020.09 - Fixed bug - calling wrong function during Exception handling, plus extra error msging when no photos found.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -348,7 +348,7 @@ function do_ingeni_slick( $args ) {
 				}
 			} catch (Exception $ex) {
 				if ( function_exists("ingeni_slick_log") ) {
-					ingeni_slick_log('Scanning folder '.$params['source_path'].' : '.$ex->message);
+					ingeni_slick_log('Scanning folder '.$params['source_path'].' : '.$ex->getMessage());
 				}
 			}
 			$home_path = get_bloginfo('url') . $params['source_path'];
@@ -375,74 +375,80 @@ function do_ingeni_slick( $args ) {
 			shuffle($photos);
 		}
 //ingeni_slick_log('photos to show: '.print_r($photos,true));
-		foreach ($photos as $photo) {
-			if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false)  || (strpos(strtolower($photo),'.mp4') !== false) ) {		
-//ingeni_slick_log('photo to show: '.$home_path . $photo);
-				if ($params['bg_images'] > 0) {
 
-					if ($params['link_post'] > 0) {
-						$sync1 .= '<a href="'.$links[$idx].'">';
-					}
+		if ( !$photos ) {
+			// We have no photos
+			return '<div class="'.$params['wrapper_class'].'"><p>Sorry, nothing to show!</p></div>';
 
-					if ( endsWith($photo,'.mp4') ) {
+		} else {
+			foreach ($photos as $photo) {
+				if ( (strpos(strtolower($photo),'.jpg') !== false) || (strpos(strtolower($photo),'.png') !== false)  || (strpos(strtolower($photo),'.mp4') !== false) ) {		
+	//ingeni_slick_log('photo to show: '.$home_path . $photo);
+					if ($params['bg_images'] > 0) {
 
-						// Disable autoplay if the first slide is a video
-						if ($idx == 0) {
-							$params['autoplay'] = 0;
+						if ($params['link_post'] > 0) {
+							$sync1 .= '<a href="'.$links[$idx].'">';
 						}
 
-						$sync1 .= '<div class="item"><div class="slick-video-wrap hide-for-small" >';
-						$sync1 .= '<video class="slick-video" id="slick-video-'.$idx.'"muted preload data-origin-x="0" data-origin-y="0" >';
-							$source_img = get_bloginfo('url') . '/' .$params['source_path'] .'/' . $photo;
-							$source_img = str_replace('\/\/','\/',$source_img);
-						$sync1 .= '<source src="' . $source_img . '" type="video/mp4">';
-						$sync1 .= 'Your browser does not support the video tag.</video>';
+						if ( endsWith($photo,'.mp4') ) {
 
+							// Disable autoplay if the first slide is a video
+							if ($idx == 0) {
+								$params['autoplay'] = 0;
+							}
+
+							$sync1 .= '<div class="item"><div class="slick-video-wrap hide-for-small" >';
+							$sync1 .= '<video class="slick-video" id="slick-video-'.$idx.'"muted preload data-origin-x="0" data-origin-y="0" >';
+								$source_img = get_bloginfo('url') . '/' .$params['source_path'] .'/' . $photo;
+								$source_img = str_replace('\/\/','\/',$source_img);
+							$sync1 .= '<source src="' . $source_img . '" type="video/mp4">';
+							$sync1 .= 'Your browser does not support the video tag.</video>';
+
+						} else {
+							$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+						}
+
+						if ($params['translucent_layer_class'] !== '') {
+							$sync1 .= '<div class="' . $params['translucent_layer_class'] . '"></div>';
+						}
+						if ($params['show_title'] > 0) {
+
+							if ( count($titles) > $idx ) {
+								$slide_title = $titles[$idx];
+							} else {
+								$slide_title = '';
+							}
+
+							$sync1 .= '<div class="slide_title">' . $slide_title . '</div>';
+
+						} elseif ($params['show_content'] > 0) {
+							// v2020.06 - Insert the content from a post
+							if ( count($content) > $idx ) {
+								$slide_content = $content[$idx];
+							} else {
+								$slide_content = '';
+							}
+
+							$sync1 .= '<div class="slide_content">' . $slide_content . '</div>';
+						}
+
+						$sync1 .= '</div></div>';
+
+						if ($params['link_post'] > 0) {
+							$sync1 .= '</a>';
+						}
+		
 					} else {
-						$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+	//ingeni_slick_log($home_path . $photo);
+						$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
 					}
-
-					if ($params['translucent_layer_class'] !== '') {
-						$sync1 .= '<div class="' . $params['translucent_layer_class'] . '"></div>';
+					++$idx;
+					if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
+						break;
 					}
-					if ($params['show_title'] > 0) {
-
-						if ( count($titles) > $idx ) {
-							$slide_title = $titles[$idx];
-						} else {
-							$slide_title = '';
-						}
-
-						$sync1 .= '<div class="slide_title">' . $slide_title . '</div>';
-
-					} elseif ($params['show_content'] > 0) {
-						// v2020.06 - Insert the content from a post
-						if ( count($content) > $idx ) {
-							$slide_content = $content[$idx];
-						} else {
-							$slide_content = '';
-						}
-
-						$sync1 .= '<div class="slide_content">' . $slide_content . '</div>';
-					}
-
-					$sync1 .= '</div></div>';
-
-					if ($params['link_post'] > 0) {
-						$sync1 .= '</a>';
-					}
-	
-				} else {
-//ingeni_slick_log($home_path . $photo);
-					$sync1 .= '<div class="item"><img src="'. $home_path . $photo .'" draggable="false"></img></div>';
-				}
-				++$idx;
-				if ( ($idx > $params['max_thumbs']) && ($params['max_thumbs'] > 0) ) {
-					break;
 				}
 			}
 		}
-
 	}
 
 	//$sync2 = $sync1;
