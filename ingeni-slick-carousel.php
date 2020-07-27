@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.09
+Version: 2020.10
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -57,6 +57,9 @@ v2020.07	- Make sure the path exists before calling scandir().
 					- show_dots now respected in the slider nav block.
 v2020.08 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
 v2020.09 - Fixed bug - calling wrong function during Exception handling, plus extra error msging when no photos found.
+v2020.10 - Fixed bug - was not checking the absolute path for a template file stored in the theme folder
+				 - 'order' parameter now used when querying posts.
+				 - For template or content based slides, the post_ids argument is now included.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -126,23 +129,35 @@ function do_ingeni_slick( $args ) {
 	$links = array();
 	$content = array();
 
+
+	$sort_order = strtoupper($params['order']);
+	if ($params['order'] != 'DESC') {
+		$sort_order = 'ASC';
+	}
+
 //ingeni_slick_log('params:'.print_r($params,true));
 
 		// Attempt to load a template file
 		$template_file = '';
 		if ( $params['template'] != '' ) {
+
 			if ( file_exists( plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'] ) ) {
 				$template_file = plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'];
 			}
 			
-			if ( file_exists( get_template_directory_uri() .'/ingeni-slick-templates/'.$params['template'] ) ) {
-				$template_file = get_template_directory_uri() .'/ingeni-slick-templates/'.$params['template'];
+			if ( file_exists( get_template_directory() .'/ingeni-slick-templates/'.$params['template'] ) ) {
+				$template_file = get_template_directory() .'/ingeni-slick-templates/'.$params['template'];
 			}
 		}
-	
+
 		if ( file_exists( $template_file ) ) {
 			// Template-based  content
 			include_once($template_file);
+
+			$id_array = array();
+			if (strlen($params['post_ids']) > 0) {
+				$id_array = explode(",",$params['post_ids']);
+			}
 	
 			if ( function_exists("do_slick_template") ) {
 	
@@ -150,6 +165,7 @@ function do_ingeni_slick( $args ) {
 				if ( $params['post_type'] == 'product' ) {
 					$args = array(
 						'orderby' => $params['orderby'],
+						'order' => $sort_order,
 						'numberposts' => -1,
 						'post_type' => $params['post_type'],
 						'tax_query' => array(
@@ -161,15 +177,25 @@ function do_ingeni_slick( $args ) {
 								)
 							)
 					);
+
+					if ($id_array) {
+						$args = array_merge($args, array('post__in' => $id_array) );
+					}
+
 				} else {
 					$args = array(
 						'category' => $params['category'],
 						'post_type' => $params['post_type'],
 						'orderby' => $params['orderby'],
+						'order' => $sort_order,
 						'numberposts' => -1,
 					);
+
+					if ($id_array) {
+						$args = array_merge($args, array('post__in' => $id_array) );
+					}
 				}
-	//fb_log(print_r($args,true));
+//ingeni_slick_log(print_r($args,true));
 				$idx = 0;
 				$content_post = get_posts( $args );
 	
@@ -192,11 +218,6 @@ function do_ingeni_slick( $args ) {
 		// Content based slides
 		//
 		$id_array = explode(",",$params['post_ids']);
-
-		$sort_order = strtoupper($params['order']);
-		if ($params['order'] != 'DESC') {
-			$sort_order = 'ASC';
-		}
 
 		$args = array(
 			'post__in' => $id_array,

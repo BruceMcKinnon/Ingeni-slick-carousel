@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.09
+Stable tag: 2020.10
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -129,5 +129,9 @@ v2020.07 - Make sure the path exists before calling scandir().
 v2020.08 - Added support for templates via the 'template' shortcode parameter. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
 
 v2020.09 - Fixed bug calling wrong function during Exception handling, plus extra error msging when no photos found.
+
+v2020.10 - Fixed bug - was not checking the absolute path for a template file stored in the theme folder
+ - 'order' parameter now used when querying posts.
+ - For template or content based slides, the post_ids argument is now included.
 
 
