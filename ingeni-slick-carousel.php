@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.10
+Version: 2020.11
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -60,6 +60,8 @@ v2020.09 - Fixed bug - calling wrong function during Exception handling, plus ex
 v2020.10 - Fixed bug - was not checking the absolute path for a template file stored in the theme folder
 				 - 'order' parameter now used when querying posts.
 				 - For template or content based slides, the post_ids argument is now included.
+v2020.11 - Added the 'template_function_call' parameter - allows you to specify a custom 'do_slick_template' function name in slider templates. Required when you have multiple sliders on a single page.
+				 - For template based slides, the 'category' parameter now specifies the category name, not the category ID.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -122,6 +124,7 @@ function do_ingeni_slick( $args ) {
 		'slides_to_scroll' => 1,
 		'show_content' => 0,
 		'template' => '',
+		'template_function_call' => 'do_slick_template',
 	), $args );
 
 
@@ -184,7 +187,7 @@ function do_ingeni_slick( $args ) {
 
 				} else {
 					$args = array(
-						'category' => $params['category'],
+						'category_name' => $params['category'],
 						'post_type' => $params['post_type'],
 						'orderby' => $params['orderby'],
 						'order' => $sort_order,
@@ -209,7 +212,7 @@ function do_ingeni_slick( $args ) {
 				$slider_nav_class = "slider-nav";
 	
 				foreach( $content_post as $post ) {
-					$sync1 .= '<div class="item">' . do_slick_template( $post ) . '</div>';
+					$sync1 .= '<div class="item">' . call_user_func( $params['template_function_call'], $post ) . '</div>';
 				}
 			}
 		} elseif ( strlen($params['post_ids']) > 0 ) {
@@ -226,7 +229,7 @@ function do_ingeni_slick( $args ) {
 			'orderby' => $params['orderby'],
 			'order' => $sort_order,
 		);
-
+//fb_log(print_r($args,true));
 		$idx = 0;
 		$content_post = get_posts( $args );
 
@@ -238,15 +241,19 @@ function do_ingeni_slick( $args ) {
 
 		$slider_for_class = "slider-for";
 		$slider_nav_class = "slider-nav";
+		$content = array();
 
 		foreach( $content_post as $post ) {
+//fb_log(print_r($post,true));
 			if ( has_post_thumbnail( $post->ID ) ) {
 				$thumb_id = get_post_thumbnail_id($post->ID);
 				$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
 				$style = 'background-image: url('. $thumb_url[0] .')';
 				
 				array_push( $titles, get_the_title($post->ID) );
+
 				array_push( $links, get_the_permalink($post->ID) );
+
 				array_push( $content, get_the_content($post->ID) );
 
 				if ($params['link_post'] > 0) {

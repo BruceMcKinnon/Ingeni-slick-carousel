@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.10
+Stable tag: 2020.11
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -73,11 +73,37 @@ post_type: Used in-conjunction with the post_ids parameter. E.g., ‘post’, �
 
 orderby: Order in which the slides appear. Used in-conjunction with the post_ids parameter. E.g., ‘post__in’. Defaults to ‘title’.
 
+order: Defaults to 'ASC'
+
 center_mode: When using variable width, center the image in the div. Defaults to 0.
 
 variable_width: Cope with variable width images. Default to 0. 
 
 fade: Defaults to 1 for fade transitions. NB, slide transition is forced when using variable_width and center_mode. 
+
+adaptive_height - When set to 1, enables adaptive height for single slide horizontal carousels. Default = 0
+
+thumbnail_size - If displaying the thumbnail or featured image of a post, specify the size to use. Default is 'full',
+
+show_title - If showing a carousel of images, set to 1 to have the image title displayed. Default = 0
+
+translucent_layer_class - Specify the a translucent class name. Default = "".
+
+link_post => Set to 1 to linking to slides sourced from posts. Default = 0
+
+delay_start - Msec to delay video/slider start. Defaults to 0. Max value = 60000.
+
+slides_to_show - Number of slides to show at one time. Default = 1
+
+slides_to_scroll  - Number of slides to scroll in a single scroll. Default = 1
+
+show_content - If 1, display content from a post to be used an an overlay - e.g., text overlaying image. Defaults to 0
+
+template - Specify a slider template. Will search in the {theme}/ingeni-slick-templates and then the plugin template folder for a matching template file.
+
+template_function_call: specify the calling function in a template file. Defaults to 'do_slick_template'. Required when multiple sliders on a single page.
+
+
 
 
 
@@ -133,5 +159,9 @@ v2020.09 - Fixed bug calling wrong function during Exception handling, plus extr
 v2020.10 - Fixed bug - was not checking the absolute path for a template file stored in the theme folder
  - 'order' parameter now used when querying posts.
  - For template or content based slides, the post_ids argument is now included.
+
+v2020.11 - Added the 'template_function_call' parameter - allows you to specify a custom 'do_slick_template' function name in slider templates. Required when you have multiple sliders on a single page.
+ - For template based slides, the 'category' parameter now specifies the category name, not the category ID.
+
 
 
