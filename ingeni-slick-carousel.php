@@ -1,7 +1,8 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.11
+Version: 2020.12
+
 Plugin URI: http://ingeni.net
 Author: Bruce McKinnon - ingeni.net
 Author URI: http://ingeni.net
@@ -62,6 +63,10 @@ v2020.10 - Fixed bug - was not checking the absolute path for a template file st
 				 - For template or content based slides, the post_ids argument is now included.
 v2020.11 - Added the 'template_function_call' parameter - allows you to specify a custom 'do_slick_template' function name in slider templates. Required when you have multiple sliders on a single page.
 				 - For template based slides, the 'category' parameter now specifies the category name, not the category ID.
+v2020.12 - Was not correctly checking for the existance of the function specified by the 'template_function_call' parameter. 
+
+
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -162,7 +167,7 @@ function do_ingeni_slick( $args ) {
 				$id_array = explode(",",$params['post_ids']);
 			}
 	
-			if ( function_exists("do_slick_template") ) {
+			if ( function_exists($params['template_function_call']) ) {
 	
 				// Handle WooCommerce products
 				if ( $params['post_type'] == 'product' ) {

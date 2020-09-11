@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2020.11
+Stable tag: 2020.12
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -163,5 +163,6 @@ v2020.10 - Fixed bug - was not checking the absolute path for a template file st
 v2020.11 - Added the 'template_function_call' parameter - allows you to specify a custom 'do_slick_template' function name in slider templates. Required when you have multiple sliders on a single page.
  - For template based slides, the 'category' parameter now specifies the category name, not the category ID.
 
+v2020.12 - Was not correctly checking for the existance of the function specified by the 'template_function_call' parameter. 
 
 
