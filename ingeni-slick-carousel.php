@@ -1,16 +1,16 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2020.12
+Version: 2021.01
 
-Plugin URI: http://ingeni.net
+Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
-Author URI: http://ingeni.net
+Author URI: https://ingeni.net
 Description: Slick-based carousel for Wordpress
 */
 
 /*
-Copyright (c) 2020 Ingeni Web Solutions
+Copyright (c) 2021 Ingeni Web Solutions
 Released under the GPL license
 http://www.gnu.org/licenses/gpl.txt
 
@@ -65,6 +65,7 @@ v2020.11 - Added the 'template_function_call' parameter - allows you to specify 
 				 - For template based slides, the 'category' parameter now specifies the category name, not the category ID.
 v2020.12 - Was not correctly checking for the existance of the function specified by the 'template_function_call' parameter. 
 
+v2021.01 - Fixed a bug in my JS call - cannot use the fade attrib when slidesToShow > 1.
 
 
 */
@@ -619,17 +620,22 @@ console.log('** paused');
 				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: " . $params['slides_to_show'] . ",
 					slidesToScroll: " . $params['slides_to_scroll'] . ",
+					infinite: true,
 					adaptiveHeight: " . $params['adaptive_height'] . ",
 					arrows: ". $params['show_arrows'] . ",
 					dots:  ". $params['show_dots'] . ",
 					autoplay: ". $params['autoplay'] . ",
 					autoplaySpeed: " . $params['speed'] . ",
-					fade: " . $params['fade'] . ",
 					centerMode: " . $params['center_mode'] . ",
 					variableWidth: " . $params['variable_width'];
+	if ( ($params['slides_to_show'] < 2) ) {
+		$js .= ",fade: " . $params['fade'];
+	}		
 	if ( ($params['show_thumbs'] != 0) && ($params['sync_thumbs'] != 0) ) {
 		$js .= ",asNavFor: '.".$slider_nav_class."',";
 	}
+
+
 	$js .= "});";
 
 	if ($params['show_thumbs'] != 0) {
