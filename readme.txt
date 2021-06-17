@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.01
+Stable tag: 2021.02
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -103,6 +103,26 @@ template - Specify a slider template. Will search in the {theme}/ingeni-slick-te
 
 template_function_call: specify the calling function in a template file. Defaults to 'do_slick_template'. Required when multiple sliders on a single page.
 
+responsive_breakpoints: Comma delimited string containing responsive breakpoints. For example: "640,1024". Default is blank = non-responsive display.
+
+responsive_slides_to_show: Comma delimited string containing number of slides to show for each breakpoint. For example: "2,3". Defaults is blank = non-responsive display.
+
+
+
+== Examples ==
+
+Three image carousel:
+
+[ingeni-slick source_path="/products/" show_thumbs=0 show_arrows=1 show_dots=0 slides_to_show=3 slides_to_scroll=3 center_mode=1 variable_width=0 wrapper_class="product_slider" speed=5000 fade=0]
+
+
+
+Responsive slider. Small = 1, Medium = 2, Large = 3:
+
+[ingeni-slick source_path="/products/" show_thumbs=0 show_arrows=1 show_dots=0 slides_to_show=1 slides_to_scroll=1 center_mode=1 variable_width=0 wrapper_class="product_slider" speed=3000 fade=0 bg_images=1 responsive_breakpoints="640,1024" responsive_slides_to_show="2,3"]
+
+
+NOTE: MobileFirst is auto selected, so the mobile settings is defined by slides_to_show and slides_to_scroll. Larger sizes are defined in the responsive_breakpoints and responsive_slide_to_show parameters.
 
 
 
@@ -167,4 +187,5 @@ v2020.12 - Was not correctly checking for the existence of the function specifie
 
 v2021.01 - Fixed a bug in my JS call - cannot use the fade attrib when slidesToShow > 1.
 
+v2021.02 - Added support for responsive carousels via the responsive_breakpoints and responsive_slides_to_show params.
 
