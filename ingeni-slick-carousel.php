@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2021.02
+Version: 2021.03
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -69,6 +69,7 @@ v2021.01 - Fixed a bug in my JS call - cannot use the fade attrib when slidesToS
 
 v2021.02 - Added support for responsive carousels via the responsive_breakpoints and responsive_slides_to_show params.
 
+v2021.03 - Make sure there are no double commas in the Slick JS parameters.
 
 */
 
@@ -514,24 +515,24 @@ function do_ingeni_slick( $args ) {
 	// Grab the responsive settings
 	$responsive_settings = '';
 
-fb_log('param breaks:'.$params['responsive_breakpoints']);
-fb_log('param show:'.$params['responsive_slides_to_show']);
+//fb_log('param breaks:'.$params['responsive_breakpoints']);
+//fb_log('param show:'.$params['responsive_slides_to_show']);
 	if ( strlen($params['responsive_breakpoints']) > 1 ) {
 
 		$responsive_breakpoints = explode(',',$params['responsive_breakpoints']);
 		$responsive_slides_to_show = explode(',',$params['responsive_slides_to_show']);
-fb_log('breaks:'.print_r($responsive_breakpoints,true));
-fb_log('show:'.print_r($responsive_slides_to_show,true));
+//fb_log('breaks:'.print_r($responsive_breakpoints,true));
+//fb_log('show:'.print_r($responsive_slides_to_show,true));
 
 		if ( is_array($responsive_breakpoints) && is_array($responsive_slides_to_show) ) {
-fb_log('a');
+//fb_log('a');
 			if ( count($responsive_breakpoints) == count($responsive_slides_to_show) ) {
 				$total_breakpoints = count($responsive_breakpoints);
-fb_log('count:'.$total_breakpoints);
+//fb_log('count:'.$total_breakpoints);
 				$idx_break = 0;
 				for ($idx_break = 0; $idx_break < $total_breakpoints; ++$idx_break) {
 					//if ( (is_int($responsive_slides_to_show[$idx_break])) && (is_int($responsive_slides_to_show[$idx_break])) ) {
-fb_log('b '.$idx_break);
+//fb_log('b '.$idx_break);
 						$responsive_settings .= '{ breakpoint: '.$responsive_breakpoints[$idx_break].',';
 							$responsive_settings .= 'settings: { slidesToShow: '.$responsive_slides_to_show[$idx_break].', slidesToScroll: '.$responsive_slides_to_show[$idx_break].' }';
 						$responsive_settings .= '},';
@@ -543,7 +544,7 @@ fb_log('b '.$idx_break);
 		if ( strlen($responsive_settings) > 0 ) {
 			$responsive_settings = 'mobileFirst:true,responsive: [' . $responsive_settings . ']';
 		}
-fb_log('responsive_settings: '.$responsive_settings);		
+//fb_log('responsive_settings: '.$responsive_settings);		
 	}
 
 
@@ -677,6 +678,9 @@ console.log('** paused');
 
 
 	$js .= "});";
+
+	// Make sure there are no double commas
+	$js = str_replace(",,",",",$js);
 
 	if ($params['show_thumbs'] != 0) {
 		$js .= "jQuery('.".$slider_nav_class."').slick({
