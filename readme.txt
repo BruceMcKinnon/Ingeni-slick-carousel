@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.02
+Stable tag: 2021.03
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -111,6 +111,13 @@ responsive_slides_to_show: Comma delimited string containing number of slides to
 
 == Examples ==
 
+
+One image background images:
+
+[ingeni-slick source_path="/assets/2020/home-photos/" show_thumbs=0 show_arrows=1 show_dots=0 variable_width=0 fade=1 speed=3000 bg_images=0]
+
+
+
 Three image carousel:
 
 [ingeni-slick source_path="/products/" show_thumbs=0 show_arrows=1 show_dots=0 slides_to_show=3 slides_to_scroll=3 center_mode=1 variable_width=0 wrapper_class="product_slider" speed=5000 fade=0]
@@ -188,4 +195,6 @@ v2020.12 - Was not correctly checking for the existence of the function specifie
 v2021.01 - Fixed a bug in my JS call - cannot use the fade attrib when slidesToShow > 1.
 
 v2021.02 - Added support for responsive carousels via the responsive_breakpoints and responsive_slides_to_show params.
+
+v2021.03 - Make sure there are no double commas in the Slick JS parameters.
 
