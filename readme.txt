@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.03
+Stable tag: 2021.05
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -107,6 +107,12 @@ responsive_breakpoints: Comma delimited string containing responsive breakpoints
 
 responsive_slides_to_show: Comma delimited string containing number of slides to show for each breakpoint. For example: "2,3". Defaults is blank = non-responsive display.
 
+slider_class - specify unique JS class to permit multiple sliders on a single page. Defaults to 
+'slider-'.
+
+pause_on_hover - If set to 0 hovering over slider won't pause it. Defaults to 1 - pause on hover.
+
+
 
 
 == Examples ==
@@ -130,6 +136,17 @@ Responsive slider. Small = 1, Medium = 2, Large = 3:
 
 
 NOTE: MobileFirst is auto selected, so the mobile settings is defined by slides_to_show and slides_to_scroll. Larger sizes are defined in the responsive_breakpoints and responsive_slide_to_show parameters.
+
+
+
+Carousel with content from Content Blocks and template:
+
+[ingeni-slick show_thumbs=0 shuffle=0 post_ids="153,158" post_type="content_block" template="right-featured.php" template_function_call="do_right_featured_template"]
+
+
+Carousel of Woocommerce Products, with responsive breakpoints and custom template:
+
+[ingeni-slick show_thumbs=0 shuffle=0 post_ids="1291,1293,1296,1297" post_type="product" template="product_thumb.php" template_function_call="do_product_thumb_template" show_arrows=0 show_dots=0 slides_to_show=1 slides_to_scroll=1 center_mode=1 variable_width=0 wrapper_class="mbm_product_slider" speed=50000 fade=0 responsive_breakpoints="640,1024" responsive_slides_to_show="2,4" slider_class="mbm_carousel]
 
 
 
@@ -197,4 +214,8 @@ v2021.01 - Fixed a bug in my JS call - cannot use the fade attrib when slidesToS
 v2021.02 - Added support for responsive carousels via the responsive_breakpoints and responsive_slides_to_show params.
 
 v2021.03 - Make sure there are no double commas in the Slick JS parameters.
+
+v2021.04 - Added the 'slider_class' parameter - allows you to specify unique JS class to permit multiple sliders on a single page.
+
+v2021.05 - Added the 'pause_on_hover' parameter - defaults to 1.
 

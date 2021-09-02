@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2021.03
+Version: 2021.05
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -71,6 +71,9 @@ v2021.02 - Added support for responsive carousels via the responsive_breakpoints
 
 v2021.03 - Make sure there are no double commas in the Slick JS parameters.
 
+v2021.04 - Added the 'slider_class' parameters- allows you to specify unique JS class to permit multiple sliders on a single page.
+
+v2021.05 - Added the 'pause_on_hover' parameter - defaults to true.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -136,6 +139,8 @@ function do_ingeni_slick( $args ) {
 		'template_function_call' => 'do_slick_template',
 		'responsive_breakpoints' => '',
 		'responsive_slides_to_show' => '',
+		'slider_class' => 'ingeni_slider_',
+		'pause_on_hover' => 1,
 	), $args );
 
 
@@ -143,7 +148,9 @@ function do_ingeni_slick( $args ) {
 	$links = array();
 	$content = array();
 
-
+	$slider_for_class = $params['slider_class'] . '_for';
+	$slider_nav_class = $params['slider_class'] . '_nav';
+	
 	$sort_order = strtoupper($params['order']);
 	if ($params['order'] != 'DESC') {
 		$sort_order = 'ASC';
@@ -163,6 +170,7 @@ function do_ingeni_slick( $args ) {
 				$template_file = get_template_directory() .'/ingeni-slick-templates/'.$params['template'];
 			}
 		}
+//ingeni_slick_log('template_file:'.$template_file);
 
 		if ( file_exists( $template_file ) ) {
 			// Template-based  content
@@ -219,15 +227,17 @@ function do_ingeni_slick( $args ) {
 				$sync2 = "";
 	
 	
-				$slider_for_class = "slider-for";
-				$slider_nav_class = "slider-nav";
+				//$slider_for_class = "slider-for";
+				//$slider_nav_class = "slider-nav";
 	
 				foreach( $content_post as $post ) {
+//ingeni_slick_log('template call: '.$params['template_function_call']);
+	
 					$sync1 .= '<div class="item">' . call_user_func( $params['template_function_call'], $post ) . '</div>';
 				}
 			}
 		} elseif ( strlen($params['post_ids']) > 0 ) {
-//ingeni_slick_log('post ids');
+//ingeni_slick_log('no template. post ids');
 		//
 		// Content based slides
 		//
@@ -250,8 +260,8 @@ function do_ingeni_slick( $args ) {
 		$sync2 = "";
 
 
-		$slider_for_class = "slider-for";
-		$slider_nav_class = "slider-nav";
+		//$slider_for_class = "slider-for";
+		//$slider_nav_class = "slider-nav";
 		$content = array();
 
 		foreach( $content_post as $post ) {
@@ -396,8 +406,8 @@ function do_ingeni_slick( $args ) {
 		$sync1 = "";
 		$sync2 = "";
 
-		$slider_for_class = "slider-for";
-		$slider_nav_class = "slider-nav";
+		//$slider_for_class = "slider-for";
+		//$slider_nav_class = "slider-nav";
 
 		if ($params['bg_images'] == 1) {
 			$params['adaptive_height'] = 'false';
@@ -599,6 +609,12 @@ function do_ingeni_slick( $args ) {
 		$params['center_mode'] = 'false';
 	}
 
+	if ($params['pause_on_hover'] == 1) {
+		$params['pause_on_hover'] = 'true';
+	} else {
+		$params['pause_on_hover'] = 'false';
+	}
+
 	if ($params['variable_width'] == 1) {
 		$params['variable_width'] = 'true';
 	} else {
@@ -658,6 +674,7 @@ console.log('** paused');
 
 	$js .= "<script>var $ = jQuery();jQuery(document).ready(
 			function($) {
+				console.log('initialising slider ".$slider_for_class."');
 				jQuery('.".$slider_for_class."').slick({
 					slidesToShow: " . $params['slides_to_show'] . ",
 					slidesToScroll: " . $params['slides_to_scroll'] . ",
@@ -668,6 +685,7 @@ console.log('** paused');
 					autoplay: ". $params['autoplay'] . ",
 					autoplaySpeed: " . $params['speed'] . ",
 					centerMode: " . $params['center_mode'] . ",
+					pauseOnHover: " . $params['pause_on_hover'] . ",
 					variableWidth: " . $params['variable_width'].",".$responsive_settings;
 	if ( ($params['slides_to_show'] < 2) ) {
 		$js .= ",fade: " . $params['fade'];
