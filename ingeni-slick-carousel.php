@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2021.05
+Version: 2021.06
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -73,7 +73,10 @@ v2021.03 - Make sure there are no double commas in the Slick JS parameters.
 
 v2021.04 - Added the 'slider_class' parameters- allows you to specify unique JS class to permit multiple sliders on a single page.
 
-v2021.05 - Added the 'pause_on_hover' parameter - defaults to true.
+v2021.05 - Added the 'pause_on_hover' parameter - defaults to 1.
+
+v2021.06 - Added a 'data' attribute to the div of background images, which contains the URL of the image. The attribute can use used when adding a lightbox to the slider.
+	     - Added the 'lightbox' parameter - implements the lightbox from https://www.npmjs.com/package/slick-lightbox
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -141,6 +144,7 @@ function do_ingeni_slick( $args ) {
 		'responsive_slides_to_show' => '',
 		'slider_class' => 'ingeni_slider_',
 		'pause_on_hover' => 1,
+		'lightbox' => 0,
 	), $args );
 
 
@@ -454,7 +458,7 @@ function do_ingeni_slick( $args ) {
 							$sync1 .= 'Your browser does not support the video tag.</video>';
 
 						} else {
-							$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" draggable="false">';
+							$sync1 .= '<div class="item" id="slick-image-'.$idx.'"><div class="bg-item" style="background-image:url('. $home_path . $photo .')" data="'. $home_path . $photo .'" draggable="false">';
 						}
 
 						if ($params['translucent_layer_class'] !== '') {
@@ -580,7 +584,6 @@ function do_ingeni_slick( $args ) {
 	} else {
 		$params['fade'] = 'false';
 	}
-
 
 
 	$data_attribs = ' data-slick=\'{"slidesToShow":'.$params['slides_to_show'].',"slidesToScroll":'.$params['slides_to_scroll'].',"arrows":'.$params['show_arrows'].',"speed":'.$params['speed'].',"fade":'.$params['fade'].',"autoplay":'.$params['autoplay'].'}\'';
@@ -711,7 +714,20 @@ console.log('** paused');
 					focusOnSelect: true
 				});";
 		}
+
+	if ($params['lightbox'] == 1) {
+		$obj_target = 'src';
+		if ($params['bg_images'] > 0) {
+			$obj_target = '.bg-item';
+		}
+		$js .= "jQuery('.".$slider_for_class."').slickLightbox({
+			src: 'data',
+			itemSelector: '.item ".$obj_target."'
+		});";
+	}
+
 	$js .= "});";
+
 	$js .= "</script>";
 
 
@@ -728,6 +744,13 @@ function ingeni_load_slick() {
 
 	wp_register_script( 'slick_js', $dir .'slick.min.js', false, '1.8', true );
 	wp_enqueue_script( 'slick_js' );
+
+
+	// Slick lightbox - https://www.npmjs.com/package/slick-lightbox
+	$dir = plugins_url( 'slick-lightbox/', __FILE__ );
+	wp_enqueue_style( 'slick-lightbox-css', $dir . 'slick-lightbox.css' );
+	wp_register_script( 'slick_lightbox_js', $dir .'slick-lightbox.js', false, '0.1', true );
+	wp_enqueue_script( 'slick_lightbox_js' );
 
 	//
 	// Plugin CSS

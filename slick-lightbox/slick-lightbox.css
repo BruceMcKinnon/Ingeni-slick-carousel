@@ -1,0 +1,138 @@
+.slick-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    background: black;
+    -webkit-transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease;
+}
+.slick-lightbox .slick-loading .slick-list {
+    background-color: transparent;
+}
+.slick-lightbox .slick-prev {
+    left: 30px;
+    z-index: 99999;
+}
+.slick-lightbox .slick-next {
+    right: 30px;
+    z-index: 99999;
+}
+.slick-lightbox-hide {
+    opacity: 0;
+}
+.slick-lightbox-hide.slick-lightbox-ie {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: alpha(opacity=0);
+}
+.slick-lightbox-hide-init {
+    position: absolute;
+    top: -9999px;
+    opacity: 0;
+}
+.slick-lightbox-hide-init.slick-lightbox-ie {
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    filter: alpha(opacity=0);
+}
+.slick-lightbox-inner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.slick-lightbox-slick-item {
+    text-align: center;
+    overflow: hidden;
+}
+.slick-lightbox-slick-item:before {
+    content: "";
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    margin-right: -0.25em;
+}
+.slick-caption-bottom .slick-lightbox-slick-item .slick-lightbox-slick-item .slick-lightbox-slick-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.slick-caption-dynamic .slick-lightbox-slick-item .slick-lightbox-slick-item .slick-lightbox-slick-caption {
+    display: block;
+    text-align: center;
+}
+.slick-lightbox-slick-item-inner {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 90%;
+    max-height: 90%;
+}
+.slick-lightbox-slick-img {
+    margin: 0 auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+}
+.slick-lightbox-slick-caption {
+    margin: 10px 0 0;
+    color: white;
+}
+.slick-lightbox-close {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    display: block;
+    height: 30px;
+    width: 30px;
+    line-height: 0;
+    font-size: 0;
+    cursor: pointer;
+    background: transparent;
+    color: transparent;
+    padding: 0;
+    border: none;
+}
+.slick-lightbox-close:focus {
+    outline: none;
+}
+.slick-lightbox-close:before {
+    font-family: "slick";
+    font-size: 30px;
+    line-height: 1;
+    color: #D1D1D1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    content: "×";
+}
+.slick-lightbox-close:hover:before {
+    color: #ffffff;
+}
+
+.slick-lightbox-slick.slick-slider, .slick-lightbox-slick.slick-slider .slick-list {
+    height: 100%;
+}
+
+
+.slick-lightbox-slick .slick-prev, .slick-lightbox-slick .slick-next {
+    height: 20px;
+    width: 20px;
+    border-top: 2px #D1D1D1 solid;
+    border-left: 2px #D1D1D1 solid;
+    transform: rotate(-45deg);
+}
+
+.slick-lightbox-slick .slick-prev:hover, .slick-lightbox-slick .slick-next:hover {
+    border-color: #ffffff;
+}
+
+.slick-lightbox-slick .slick-prev:before, .slick-lightbox-slick .slick-next:before {
+        content: "" !important;
+}
+.slick-lightbox-slick .slick-next {
+    transform: rotate(135deg);
+}

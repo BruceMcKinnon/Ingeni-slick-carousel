@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.05
+Stable tag: 2021.06
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -112,6 +112,7 @@ slider_class - specify unique JS class to permit multiple sliders on a single pa
 
 pause_on_hover - If set to 0 hovering over slider won't pause it. Defaults to 1 - pause on hover.
 
+lightbox - If set to 1, a Lightbox will open when the image is clicked.
 
 
 
@@ -147,6 +148,21 @@ Carousel with content from Content Blocks and template:
 Carousel of Woocommerce Products, with responsive breakpoints and custom template:
 
 [ingeni-slick show_thumbs=0 shuffle=0 post_ids="1291,1293,1296,1297" post_type="product" template="product_thumb.php" template_function_call="do_product_thumb_template" show_arrows=0 show_dots=0 slides_to_show=1 slides_to_scroll=1 center_mode=1 variable_width=0 wrapper_class="mbm_product_slider" speed=50000 fade=0 responsive_breakpoints="640,1024" responsive_slides_to_show="2,4" slider_class="mbm_carousel]
+
+
+
+
+
+== Adding a Lightbox ==
+
+Lightbox functionality is supported using slick-lightbox ( https://www.npmjs.com/package/slick-lightbox ).
+
+Simply add the lightbox=1 parameter. E.g.:
+
+[ingeni-slick source_path="/gallery/ceremony/" slider_class="photo_gallery" show_thumbs=0 show_arrows=1 show_dots=0 slides_to_show=2 slides_to_scroll=1 center_mode=1 variable_width=0 speed=3000 fade=0 bg_images=1 lightbox=1]
+
+
+
 
 
 
@@ -218,4 +234,9 @@ v2021.03 - Make sure there are no double commas in the Slick JS parameters.
 v2021.04 - Added the 'slider_class' parameter - allows you to specify unique JS class to permit multiple sliders on a single page.
 
 v2021.05 - Added the 'pause_on_hover' parameter - defaults to 1.
+
+v2021.06 - Added a 'data' attribute to the div of background images, which contains the URL of the image.
+- Added the 'lightbox' parameter - implements the lightbox from https://www.npmjs.com/package/slick-lightbox
+
+
 
