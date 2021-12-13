@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2021.06
+Stable tag: 2021.07
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -237,6 +237,8 @@ v2021.05 - Added the 'pause_on_hover' parameter - defaults to 1.
 
 v2021.06 - Added a 'data' attribute to the div of background images, which contains the URL of the image.
 - Added the 'lightbox' parameter - implements the lightbox from https://www.npmjs.com/package/slick-lightbox
+
+v2021.07 - Product carousels now use the slides_to_show parameter to control how many products are displayed. max_thumbs is used to determine how many products are retrieved from the database. Therefore max_thumbs should equal the largest value of responsive_slides_to_show.
 
 
 

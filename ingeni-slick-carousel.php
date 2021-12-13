@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2021.06
+Version: 2021.07
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -77,6 +77,9 @@ v2021.05 - Added the 'pause_on_hover' parameter - defaults to 1.
 
 v2021.06 - Added a 'data' attribute to the div of background images, which contains the URL of the image. The attribute can use used when adding a lightbox to the slider.
 	     - Added the 'lightbox' parameter - implements the lightbox from https://www.npmjs.com/package/slick-lightbox
+
+v2021.07 - Product carousels now use the slides_to_show parameter to control how many products are displayed.
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -129,7 +132,7 @@ function do_ingeni_slick( $args ) {
 		'center_mode' => 0,
 		'variable_width' => 0,
 		'fade' => 1,
-		'adaptive_height' => 0,
+		'adaptive_height' => 1,
 		'thumbnail_size' => 'full',
 		'show_title' => 0,
 		'translucent_layer_class' => '',
@@ -188,11 +191,12 @@ function do_ingeni_slick( $args ) {
 			if ( function_exists($params['template_function_call']) ) {
 	
 				// Handle WooCommerce products
+
 				if ( $params['post_type'] == 'product' ) {
 					$args = array(
 						'orderby' => $params['orderby'],
 						'order' => $sort_order,
-						'numberposts' => -1,
+						'numberposts' => $params['max_thumbs'],
 						'post_type' => $params['post_type'],
 						'tax_query' => array(
 								array(
@@ -214,7 +218,7 @@ function do_ingeni_slick( $args ) {
 						'post_type' => $params['post_type'],
 						'orderby' => $params['orderby'],
 						'order' => $sort_order,
-						'numberposts' => -1,
+						'numberposts' => $params['max_thumbs'],
 					);
 
 					if ($id_array) {
@@ -416,7 +420,7 @@ function do_ingeni_slick( $args ) {
 		if ($params['bg_images'] == 1) {
 			$params['adaptive_height'] = 'false';
 		} else {
-			if ($params['adaptive_height'] == '0') {
+			if ($params['adaptive_height'] == 0) {
 				$params['adaptive_height'] = 'false';
 			} else {
 				$params['adaptive_height'] = 'true';
@@ -623,6 +627,7 @@ function do_ingeni_slick( $args ) {
 	} else {
 		$params['variable_width'] = 'false';
 	}
+
 
 	if ( !is_numeric( $params['delay_start'] ) ) {
 		$params['delay_start']  = 0;
