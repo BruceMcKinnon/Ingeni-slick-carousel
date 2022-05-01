@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2021.07
+Version: 2022.01
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -79,6 +79,8 @@ v2021.06 - Added a 'data' attribute to the div of background images, which conta
 	     - Added the 'lightbox' parameter - implements the lightbox from https://www.npmjs.com/package/slick-lightbox
 
 v2021.07 - Product carousels now use the slides_to_show parameter to control how many products are displayed.
+
+v2022.01 - do_ingeni_slick() - Fixed problem with trying to shuffle empty array of photos.
 
 */
 
@@ -429,7 +431,9 @@ function do_ingeni_slick( $args ) {
 
 		$idx = 0;
 		if ( ($params['shuffle'] > 0) && ($params['show_title'] == 0) ) {
-			shuffle($photos);
+			if ( $photos ) {
+				shuffle($photos);
+			}
 		}
 //ingeni_slick_log('photos to show: '.print_r($photos,true));
 
