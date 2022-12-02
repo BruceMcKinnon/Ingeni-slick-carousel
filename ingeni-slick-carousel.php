@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2022.01
+Version: 2022.02
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -82,6 +82,8 @@ v2021.07 - Product carousels now use the slides_to_show parameter to control how
 
 v2022.01 - do_ingeni_slick() - Fixed problem with trying to shuffle empty array of photos.
 
+v2022.02 - do_ingeni_slick() - Misc PHP 8 fixes.
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -156,6 +158,8 @@ function do_ingeni_slick( $args ) {
 	$titles = array();
 	$links = array();
 	$content = array();
+
+	$photos = null;
 
 	$slider_for_class = $params['slider_class'] . '_for';
 	$slider_nav_class = $params['slider_class'] . '_nav';
