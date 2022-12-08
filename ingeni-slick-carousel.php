@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2022.02
+Version: 2022.03
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -84,6 +84,8 @@ v2022.01 - do_ingeni_slick() - Fixed problem with trying to shuffle empty array 
 
 v2022.02 - do_ingeni_slick() - Misc PHP 8 fixes.
 
+v2022.03 - do_ingeni_slick() - Initialise home_page variable.
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -160,6 +162,7 @@ function do_ingeni_slick( $args ) {
 	$content = array();
 
 	$photos = null;
+	$home_path = '';
 
 	$slider_for_class = $params['slider_class'] . '_for';
 	$slider_nav_class = $params['slider_class'] . '_nav';

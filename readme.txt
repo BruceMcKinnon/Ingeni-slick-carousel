@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2022.02
+Stable tag: 2022.03
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -243,4 +243,7 @@ v2021.07 - Product carousels now use the slides_to_show parameter to control how
 v2022.01 - do_ingeni_slick() - Fixed problem with trying to shuffle empty array of photos.
 
 v2022.02 - do_ingeni_slick() - Misc PHP 8 fixes.
+
+v2022.03 - do_ingeni_slick() - Initialise home_page variable.
+
 
