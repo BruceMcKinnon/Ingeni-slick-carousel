@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2022.03
+Version: 2022.04
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -85,6 +85,8 @@ v2022.01 - do_ingeni_slick() - Fixed problem with trying to shuffle empty array 
 v2022.02 - do_ingeni_slick() - Misc PHP 8 fixes.
 
 v2022.03 - do_ingeni_slick() - Initialise home_page variable.
+
+v2022.04 - do_ingeni_slick() - Implemented 'orderby' param for image based slides when content comes from a post, content_block, etc featured image.
 
 */
 
@@ -324,7 +326,7 @@ function do_ingeni_slick( $args ) {
 //ingeni_slick_log('cat');
 			$photos = array();
 
-			$order_by = 'date';
+			$order_by = $params['orderby'];
 			if ( $params['shuffle'] > 0) {
 				$order_by = 'rand';
 			}
