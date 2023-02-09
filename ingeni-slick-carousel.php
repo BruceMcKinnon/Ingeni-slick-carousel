@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2022.04
+Version: 2023.01
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -87,6 +87,8 @@ v2022.02 - do_ingeni_slick() - Misc PHP 8 fixes.
 v2022.03 - do_ingeni_slick() - Initialise home_page variable.
 
 v2022.04 - do_ingeni_slick() - Implemented 'orderby' param for image based slides when content comes from a post, content_block, etc featured image.
+
+v2023.01 - do_ingeni_slick() - When using templates, also check for a child theme path ( using get_stylesheet_directory() ).
 
 */
 
@@ -183,9 +185,11 @@ function do_ingeni_slick( $args ) {
 			if ( file_exists( plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'] ) ) {
 				$template_file = plugin_dir_path( __FILE__ ) . '/templates/'.$params['template'];
 			}
-			
 			if ( file_exists( get_template_directory() .'/ingeni-slick-templates/'.$params['template'] ) ) {
 				$template_file = get_template_directory() .'/ingeni-slick-templates/'.$params['template'];
+			}
+			if ( file_exists( get_stylesheet_directory() .'/ingeni-slick-templates/'.$params['template'] ) ) {
+				$template_file = get_stylesheet_directory() .'/ingeni-slick-templates/'.$params['template'];
 			}
 		}
 //ingeni_slick_log('template_file:'.$template_file);
@@ -236,7 +240,7 @@ function do_ingeni_slick( $args ) {
 						$args = array_merge($args, array('post__in' => $id_array) );
 					}
 				}
-//ingeni_slick_log(print_r($args,true));
+ingeni_slick_log(print_r($args,true));
 				$idx = 0;
 				$content_post = get_posts( $args );
 	
