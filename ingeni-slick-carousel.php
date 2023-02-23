@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2023.01
+Version: 2023.02
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -90,6 +90,7 @@ v2022.04 - do_ingeni_slick() - Implemented 'orderby' param for image based slide
 
 v2023.01 - do_ingeni_slick() - When using templates, also check for a child theme path ( using get_stylesheet_directory() ).
 
+v2023.02 - do_ingeni_slick() - Support the use of 'attachment' post_type (e.g., media library items). Used when overriding the WP gallery shortcode.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -289,10 +290,16 @@ ingeni_slick_log(print_r($args,true));
 
 		foreach( $content_post as $post ) {
 //fb_log(print_r($post,true));
-			if ( has_post_thumbnail( $post->ID ) ) {
-				$thumb_id = get_post_thumbnail_id($post->ID);
-				$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
-				$style = 'background-image: url('. $thumb_url[0] .')';
+			if ( has_post_thumbnail( $post->ID ) || ( $params['post_type'] == 'attachment' ) ) {
+				if ( $params['post_type'] == 'attachment' ) {
+					$thumb_url = $post->guid;
+					$style = 'background-image: url('. $thumb_url .')';
+				
+				} else {
+					$thumb_id = get_post_thumbnail_id($post->ID);
+					$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
+					$style = 'background-image: url('. $thumb_url[0] .')';
+				}
 				
 				array_push( $titles, get_the_title($post->ID) );
 
