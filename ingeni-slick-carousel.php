@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2023.02
+Version: 2023.03
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -91,6 +91,11 @@ v2022.04 - do_ingeni_slick() - Implemented 'orderby' param for image based slide
 v2023.01 - do_ingeni_slick() - When using templates, also check for a child theme path ( using get_stylesheet_directory() ).
 
 v2023.02 - do_ingeni_slick() - Support the use of 'attachment' post_type (e.g., media library items). Used when overriding the WP gallery shortcode.
+
+v2023.03 - Make sure calls to get_posts() include the parameter 'posts_per_page' = max_thumbs;
+	     - Set max_thumbs default to -1 (i.e, get all).
+		 - Added the image_size parmaeter - allows you to decide which size image to retrieve from the WP media centre.
+
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -123,7 +128,7 @@ function do_ingeni_slick( $args ) {
 		'source_path' => '/photos-bucket/',
 		'wrapper_class' => 'ingeni-slick-wrap',
 		'sync_thumbs' => 1,
-		'max_thumbs' => 0,
+		'max_thumbs' => -1,
 		'show_thumbs' => 1,
 		'show_arrows' => 1,
 		'show_dots' => 0,
@@ -158,11 +163,15 @@ function do_ingeni_slick( $args ) {
 		'responsive_slides_to_show' => '',
 		'slider_class' => 'ingeni_slider_',
 		'pause_on_hover' => 1,
+		'image_size' => 'full',
 		'lightbox' => 0,
 	), $args );
 
+//fb_log('slick:'.print_r($params,true));
 
 	$titles = array();
+	$captions = array();
+	$alt_texts = array();
 	$links = array();
 	$content = array();
 
@@ -241,7 +250,7 @@ function do_ingeni_slick( $args ) {
 						$args = array_merge($args, array('post__in' => $id_array) );
 					}
 				}
-ingeni_slick_log(print_r($args,true));
+//ingeni_slick_log(print_r($args,true));
 				$idx = 0;
 				$content_post = get_posts( $args );
 	
@@ -273,11 +282,13 @@ ingeni_slick_log(print_r($args,true));
 			'class' => 'content_block_featured',
 			'orderby' => $params['orderby'],
 			'order' => $sort_order,
+			'posts_per_page' => $params['max_thumbs'],
 		);
 //fb_log(print_r($args,true));
 		$idx = 0;
 		$content_post = get_posts( $args );
 
+//fb_log(print_r($content_post,true));
 		$inline_style = "";
 
 		$sync1 = "";
@@ -289,29 +300,43 @@ ingeni_slick_log(print_r($args,true));
 		$content = array();
 
 		foreach( $content_post as $post ) {
-//fb_log(print_r($post,true));
+
 			if ( has_post_thumbnail( $post->ID ) || ( $params['post_type'] == 'attachment' ) ) {
-				if ( $params['post_type'] == 'attachment' ) {
+				// v2023.03 - Changed logic so the GUID is used as a fallback, rather than first choice.
+				// This allows a smaller image to be selected.
+
+				$thumb_id = get_post_thumbnail_id($post->ID);
+
+				if ($thumb_id) {
+					$thumb_url = wp_get_attachment_image_src($thumb_id,$params['image_size'], false);
+				} else {
+					$thumb_url = wp_get_attachment_image_src($post->ID,$params['image_size'], false);
+				}
+
+				if ($thumb_url) {
+					$style = 'background-image: url('. $thumb_url[0] .')';
+				} else {
 					$thumb_url = $post->guid;
 					$style = 'background-image: url('. $thumb_url .')';
-				
-				} else {
-					$thumb_id = get_post_thumbnail_id($post->ID);
-					$thumb_url = wp_get_attachment_image_src($thumb_id,'full', false);
-					$style = 'background-image: url('. $thumb_url[0] .')';
 				}
+
 				
-				array_push( $titles, get_the_title($post->ID) );
+				$title = get_the_title($post->ID);
+				$caption = wp_get_attachment_caption($post->ID);
+				array_push( $titles, $title );
+				array_push( $captions, $caption );
 
+				if (strlen($caption) > 0 ) {
+					$title = $caption;
+				}
 				array_push( $links, get_the_permalink($post->ID) );
-
 				array_push( $content, get_the_content($post->ID) );
 
 				if ($params['link_post'] > 0) {
 					$sync1 .= '<a href="'.get_the_permalink($post->ID).'">';
 				}
 
-				$sync1 .= '<div class="item"><div style="'.$style.'"><div class="title-layer"><h3>' . get_the_title($post->ID) .'</h3></div></div></div>';
+				$sync1 .= '<div class="item"><div style="'.$style.'"><div class="title-layer"><h3>' .$title .'</h3></div></div></div>';
 
 				if ($params['link_post'] > 0) {
 					$sync1 .= '</a>';
