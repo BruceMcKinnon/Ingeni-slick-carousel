@@ -4,7 +4,7 @@ Contributors: Bruce McKinnon
 Tags: carousel, slick slider
 Requires at least: 4.8
 Tested up to: 5.1.1
-Stable tag: 2023.03
+Stable tag: 2023.04
 
 A Slick Slider-based carousel, that provides support for synchronised thumbnails with content sourced from a folder relative to the home URL.
 
@@ -256,4 +256,6 @@ v2023.02 - do_ingeni_slick() - Support the use of 'attachment' post_type (e.g., 
 v2023.03 - Make sure calls to get_posts() include the parameter 'posts_per_page' = max_thumbs;
 - Set max_thumbs default to -1 (i.e, get all).
 - Added the image_size parameter - allows you to decide which size image to retrieve from the WP media centre.
+
+v2023.04 - Support post_ids parameter when using a custom template. Hint, add orderby="post__in" to order of the posts as listed in the post_ids comma separated string.
 

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2023.03
+Version: 2023.04
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -95,6 +95,8 @@ v2023.02 - do_ingeni_slick() - Support the use of 'attachment' post_type (e.g., 
 v2023.03 - Make sure calls to get_posts() include the parameter 'posts_per_page' = max_thumbs;
 	     - Set max_thumbs default to -1 (i.e, get all).
 		 - Added the image_size parmaeter - allows you to decide which size image to retrieve from the WP media centre.
+
+v2023.04 - Support post_ids parameter when using a custom template.
 
 */
 
@@ -205,6 +207,7 @@ function do_ingeni_slick( $args ) {
 //ingeni_slick_log('template_file:'.$template_file);
 
 		if ( file_exists( $template_file ) ) {
+//ingeni_slick_log('template_file exists!');
 			// Template-based  content
 			include_once($template_file);
 
@@ -214,7 +217,7 @@ function do_ingeni_slick( $args ) {
 			}
 	
 			if ( function_exists($params['template_function_call']) ) {
-	
+//ingeni_slick_log('function exists!');
 				// Handle WooCommerce products
 
 				if ( $params['post_type'] == 'product' ) {
@@ -237,6 +240,18 @@ function do_ingeni_slick( $args ) {
 						$args = array_merge($args, array('post__in' => $id_array) );
 					}
 
+				} elseif ( strlen($params['post_ids']) > 0 ) {
+					//
+					// Post IDs supplied - v2023.04
+					//
+					$id_array = explode(",",$params['post_ids']);
+
+					$args = array(
+						'post__in' => $id_array,
+						'posts_per_page' => $params['max_thumbs'],
+						'orderby' => $params['orderby'],
+					);
+
 				} else {
 					$args = array(
 						'category_name' => $params['category'],
@@ -246,14 +261,16 @@ function do_ingeni_slick( $args ) {
 						'numberposts' => $params['max_thumbs'],
 					);
 
+//ingeni_slick_log('args:'.print_r($args,true));
+
 					if ($id_array) {
 						$args = array_merge($args, array('post__in' => $id_array) );
 					}
 				}
-//ingeni_slick_log(print_r($args,true));
+
 				$idx = 0;
 				$content_post = get_posts( $args );
-	
+
 				$inline_style = "";
 	
 				$sync1 = "";
@@ -267,6 +284,7 @@ function do_ingeni_slick( $args ) {
 //ingeni_slick_log('template call: '.$params['template_function_call']);
 	
 					$sync1 .= '<div class="item">' . call_user_func( $params['template_function_call'], $post ) . '</div>';
+//ingeni_slick_log('sync:'.$sync1);
 				}
 			}
 		} elseif ( strlen($params['post_ids']) > 0 ) {
