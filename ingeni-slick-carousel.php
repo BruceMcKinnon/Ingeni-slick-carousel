@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Ingeni Slick Carousel
-Version: 2023.04
+Version: 2023.05
 
 Plugin URI: https://ingeni.net
 Author: Bruce McKinnon - ingeni.net
@@ -97,7 +97,7 @@ v2023.03 - Make sure calls to get_posts() include the parameter 'posts_per_page'
 		 - Added the image_size parmaeter - allows you to decide which size image to retrieve from the WP media centre.
 
 v2023.04 - Support post_ids parameter when using a custom template.
-
+v2023.05 - When using post_ids parameter and a custom template, make sure to set the post_type as part of the query.
 */
 
 if (!function_exists("ingeni_slick_log")) {
@@ -250,6 +250,7 @@ function do_ingeni_slick( $args ) {
 						'post__in' => $id_array,
 						'posts_per_page' => $params['max_thumbs'],
 						'orderby' => $params['orderby'],
+						'post_type' => $params['post_type']
 					);
 
 				} else {
